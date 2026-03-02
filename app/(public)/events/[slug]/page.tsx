@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
+import { EventRegistrationSection } from "./EventRegistrationSection";
 
 type Event = {
   id: string;
@@ -55,6 +56,10 @@ export default async function EventDetailPage(props: PageProps) {
   const params = await props.params;
   const supabase = await createClient();
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const { data, error } = await supabase
     .from("events")
     .select(
@@ -68,6 +73,20 @@ export default async function EventDetailPage(props: PageProps) {
   }
 
   const event: Event = data;
+
+  let initiallyRegistered = false;
+
+  if (user) {
+    const { data: registration } = await supabase
+      .from("event_registrations")
+      .select("id, status")
+      .eq("event_id", event.id)
+      .eq("user_id", user.id)
+      .eq("status", "registered")
+      .maybeSingle();
+
+    initiallyRegistered = Boolean(registration);
+  }
 
   const accentColor =
     event.color_code && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(event.color_code)
@@ -149,11 +168,11 @@ export default async function EventDetailPage(props: PageProps) {
 
         <section className="rounded-lg border bg-muted/40 p-5 flex flex-col gap-2">
           <h2 className="font-semibold text-lg">Registration</h2>
-          <p className="text-sm text-muted-foreground">
-            Online registration will be available in the next phase of the
-            project. For now, you can use this page to share event details with
-            your friends.
-          </p>
+          <EventRegistrationSection
+            slug={event.slug}
+            isLoggedIn={Boolean(user)}
+            initiallyRegistered={initiallyRegistered}
+          />
         </section>
       </article>
     </main>
