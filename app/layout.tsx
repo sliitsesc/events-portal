@@ -6,6 +6,7 @@ import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 
 import { AuthButton } from "@/components/auth-button";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 
 import "./globals.css";
 
@@ -54,7 +55,10 @@ export default function RootLayout({
                   </Link>
                 </div>
                 <Suspense>
-                  <AuthButton />
+                  <div className="ml-auto flex items-center gap-2">
+                    <AuthButton />
+                    <ThemeSwitcher />
+                  </div>
                 </Suspense>
               </div>
             </nav>
