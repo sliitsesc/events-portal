@@ -11,9 +11,6 @@ type RegistrantRow = {
   profiles: {
     full_name: string | null;
   } | null;
-  users: {
-    email: string | null;
-  } | null;
 };
 
 function formatTimestamp(iso: string) {
@@ -49,7 +46,7 @@ export default async function EventRegistrantsPage(props: PageProps) {
 
   const { data, error } = await supabase
     .from("event_registrations")
-    .select("id, created_at, status, attended, profiles ( full_name ), users!inner ( email )")
+    .select("id, created_at, status, attended, profiles ( full_name )")
     .eq("event_id", event.id)
     .order("created_at", { ascending: true });
 
@@ -93,9 +90,7 @@ export default async function EventRegistrantsPage(props: PageProps) {
                     {row.profiles?.full_name ?? "—"}
                   </td>
                   <td className="px-4 py-2 align-top">
-                    <span className="text-xs text-muted-foreground">
-                      {row.users?.email ?? "—"}
-                    </span>
+                    <span className="text-xs text-muted-foreground">—</span>
                   </td>
                   <td className="px-4 py-2 align-top">
                     <span className="text-xs text-muted-foreground">

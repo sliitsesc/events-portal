@@ -16,8 +16,12 @@ create table if not exists public.profiles (
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
-  insert into public.profiles (id, full_name)
-  values (new.id, new.raw_user_meta_data->>'full_name')
+  insert into public.profiles (id, full_name, student_id)
+  values (
+    new.id,
+    new.raw_user_meta_data->>'full_name',
+    new.raw_user_meta_data->>'student_id'
+  )
   on conflict (id) do nothing;
   return new;
 end;
