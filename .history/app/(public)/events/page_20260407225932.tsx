@@ -77,8 +77,7 @@ async function EventsList() {
     <ul className="grid gap-4 md:grid-cols-2">
       {events.map((event) => {
         const accentColor =
-          event.color_code &&
-          /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(event.color_code)
+          event.color_code && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(event.color_code)
             ? event.color_code
             : "#4f46e5";
 
@@ -159,3 +158,4 @@ export default function EventsPage() {
     </main>
   );
 }
+
