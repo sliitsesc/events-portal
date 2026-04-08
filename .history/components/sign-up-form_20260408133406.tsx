@@ -92,8 +92,7 @@ export function SignUpForm({
       if (error) throw error;
       router.push("/auth/sign-up-success");
     } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "An error occurred";
+      const message = error instanceof Error ? error.message : "An error occurred";
       if (message.toLowerCase().includes("database error saving new user")) {
         setError(
           "Signup failed due to server database setup (profiles table/trigger). Please check Supabase Auth and Postgres logs.",
@@ -139,7 +138,7 @@ export function SignUpForm({
                 <Input
                   id="email"
                   type="email"
-                  placeholder="@my.sliit.lk or @sliit.lk"
+                  placeholder="m@example.com"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
