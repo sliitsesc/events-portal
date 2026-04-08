@@ -55,7 +55,7 @@ export function LoginForm({
       const redirectTo =
         requestedRedirect && requestedRedirect.startsWith("/")
           ? requestedRedirect
-          : "/";
+          : "/events";
       router.push(redirectTo);
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");

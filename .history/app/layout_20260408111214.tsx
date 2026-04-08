@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { Suspense } from "react";
 
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
@@ -23,6 +25,26 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
+function NavbarFallback() {
+  return (
+    <nav className="w-full border-b border-b-foreground/10">
+      <div className="max-w-5xl mx-auto flex h-16 items-center justify-between px-5 text-sm">
+        <div className="flex items-center gap-4 font-semibold">
+          <Link href="/" className="tracking-tight">
+            SESC Events
+          </Link>
+          <Link
+            href="/events"
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Events
+          </Link>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -38,7 +60,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <div className="min-h-screen flex flex-col">
-            <Navbar />
+            <Suspense fallback={<NavbarFallback />}>
+              <Navbar />
+            </Suspense>
             <div className="flex-1 flex flex-col">{children}</div>
           </div>
         </ThemeProvider>
