@@ -34,16 +34,28 @@ export function LoginForm({
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       if (error) throw error;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_admin")
+        .eq("id", data.user.id)
+        .maybeSingle();
+
+      if (profile?.is_admin) {
+        router.push("/admin/events");
+        return;
+      }
+
       const requestedRedirect = searchParams.get("redirect");
       const redirectTo =
         requestedRedirect && requestedRedirect.startsWith("/")
           ? requestedRedirect
-          : "/events";
+          : "/";
       router.push(redirectTo);
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
