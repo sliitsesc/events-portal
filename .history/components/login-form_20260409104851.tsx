@@ -32,7 +32,7 @@ export function LoginForm({
       const safeRedirect =
         requestedRedirect && requestedRedirect.startsWith("/")
           ? requestedRedirect
-          : "/";
+          : "/events";
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -58,9 +58,7 @@ export function LoginForm({
     error ??
     (callbackError === "AccessDenied"
       ? "Only official @my.sliit.lk accounts can access this platform."
-      : callbackError === "SsoOnly"
-        ? "This platform uses Google SSO only. Continue with your SLIIT account."
-        : null);
+      : null);
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -98,13 +96,9 @@ export function LoginForm({
                   fill="#EA4335"
                 />
               </svg>
-              {isLoading
-                ? "Connecting to SLIIT..."
-                : "Continue with SLIIT Email"}
+              {isLoading ? "Connecting to SLIIT..." : "Continue with SLIIT Email"}
             </Button>
-            {resolvedError && (
-              <p className="text-sm text-red-500">{resolvedError}</p>
-            )}
+            {resolvedError && <p className="text-sm text-red-500">{resolvedError}</p>}
           </div>
         </CardContent>
       </Card>

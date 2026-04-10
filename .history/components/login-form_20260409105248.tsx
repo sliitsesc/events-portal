@@ -32,7 +32,7 @@ export function LoginForm({
       const safeRedirect =
         requestedRedirect && requestedRedirect.startsWith("/")
           ? requestedRedirect
-          : "/";
+          : "/events";
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -98,13 +98,9 @@ export function LoginForm({
                   fill="#EA4335"
                 />
               </svg>
-              {isLoading
-                ? "Connecting to SLIIT..."
-                : "Continue with SLIIT Email"}
+              {isLoading ? "Connecting to SLIIT..." : "Continue with SLIIT Email"}
             </Button>
-            {resolvedError && (
-              <p className="text-sm text-red-500">{resolvedError}</p>
-            )}
+            {resolvedError && <p className="text-sm text-red-500">{resolvedError}</p>}
           </div>
         </CardContent>
       </Card>

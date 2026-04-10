@@ -32,7 +32,7 @@ export function LoginForm({
       const safeRedirect =
         requestedRedirect && requestedRedirect.startsWith("/")
           ? requestedRedirect
-          : "/";
+          : "/events";
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",

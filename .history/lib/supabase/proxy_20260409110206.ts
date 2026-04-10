@@ -84,7 +84,7 @@ export async function updateSession(request: NextRequest) {
 
       if (!needsProfileCompletion && isCompleteProfileRoute) {
         const url = request.nextUrl.clone();
-        url.pathname = profile?.is_admin ? "/admin/events" : "/";
+        url.pathname = profile?.is_admin ? "/admin/events" : "/events";
         return NextResponse.redirect(url);
       }
     }
