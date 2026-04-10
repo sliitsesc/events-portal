@@ -112,11 +112,7 @@ export function Navbar() {
               aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
               onClick={() => setIsMobileMenuOpen((prev) => !prev)}
             >
-              {isMobileMenuOpen ? (
-                <X className="size-4" />
-              ) : (
-                <Menu className="size-4" />
-              )}
+              {isMobileMenuOpen ? <X className="size-4" /> : <Menu className="size-4" />}
             </Button>
           </div>
         </div>
@@ -126,7 +122,7 @@ export function Navbar() {
             <div className="flex flex-col gap-2 font-medium">
               <Link
                 href={primaryLinkHref}
-                className="text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 {primaryLinkLabel}
@@ -152,18 +148,12 @@ export function Navbar() {
             ) : (
               <div className="flex gap-2">
                 <Button asChild size="sm" variant="outline" className="flex-1">
-                  <Link
-                    href="/auth/login"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
+                  <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
                     Sign in
                   </Link>
                 </Button>
                 <Button asChild size="sm" variant="default" className="flex-1">
-                  <Link
-                    href="/auth/sign-up"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
+                  <Link href="/auth/sign-up" onClick={() => setIsMobileMenuOpen(false)}>
                     Sign up
                   </Link>
                 </Button>
