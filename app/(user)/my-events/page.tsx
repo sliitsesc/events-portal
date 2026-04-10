@@ -1,9 +1,15 @@
 import Link from "next/link";
 
 import { createClient } from "@/lib/supabase/server";
+import { buildTicketQrDataUrl, getTicketCode } from "@/lib/tickets";
 import { cn } from "@/lib/utils";
+import { QrTicketPreview } from "./QrTicketPreview";
 
 type Row = {
+  id: string;
+  created_at: string;
+  event_id: string;
+  user_id: string;
   events: {
     id: string;
     slug: string;
@@ -70,20 +76,43 @@ export default async function MyEventsPage() {
     );
   }
 
-  const { data, error } = await supabase
+  const { data, error } = (await supabase
     .from("event_registrations")
     .select(
-      "events ( id, slug, title, type, start_at, end_at, location, color_code )",
+      "id, created_at, event_id, user_id, events ( id, slug, title, type, start_at, end_at, location, color_code )",
     )
     .eq("user_id", user.id)
     .eq("status", "registered")
-    .order("created_at", { ascending: false }) as { data: Row[] | null; error: any };
+    .order("created_at", { ascending: false })) as {
+    data: Row[] | null;
+    error: unknown;
+  };
 
   if (error) {
     console.error("Error loading my events", error);
   }
 
   const rows = data?.filter((row) => row.events !== null) ?? [];
+
+  const walletTickets = await Promise.all(
+    rows.map(async (row) => {
+      const event = row.events!;
+      const ticketCode = getTicketCode(row.id);
+      const qrDataUrl = await buildTicketQrDataUrl({
+        registrationId: row.id,
+        eventId: row.event_id,
+        userId: row.user_id,
+        issuedAt: row.created_at,
+      });
+
+      return {
+        row,
+        event,
+        ticketCode,
+        qrDataUrl,
+      };
+    }),
+  );
 
   return (
     <main className="min-h-screen w-full flex justify-center">
@@ -101,8 +130,8 @@ export default async function MyEventsPage() {
           </p>
         ) : (
           <ul className="flex flex-col gap-3">
-            {rows.map((row) => {
-              const event = row.events!;
+            {walletTickets.map((item) => {
+              const { row, event, ticketCode, qrDataUrl } = item;
 
               const accentColor =
                 event.color_code &&
@@ -111,7 +140,7 @@ export default async function MyEventsPage() {
                   : "#4f46e5";
 
               return (
-                <li key={event.id}>
+                <li key={row.id}>
                   <Link
                     href={`/events/${event.slug}`}
                     className="block rounded-lg border bg-card hover:shadow-md transition-shadow overflow-hidden"
@@ -120,7 +149,7 @@ export default async function MyEventsPage() {
                       className="h-1 w-full"
                       style={{ backgroundColor: accentColor }}
                     />
-                    <div className="p-4 flex flex-col gap-2">
+                    <div className="p-4 flex flex-col gap-4">
                       <div className="flex items-start justify-between gap-2">
                         <h2 className="text-base font-semibold line-clamp-2">
                           {event.title}
@@ -136,15 +165,32 @@ export default async function MyEventsPage() {
                           {event.type}
                         </span>
                       </div>
+                      <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
+                        <div className="flex flex-col gap-2">
+                          <p className="text-xs text-muted-foreground">
+                            {formatDateRange(event.start_at, event.end_at)}
+                          </p>
+                          {event.location && (
+                            <p className="text-xs text-muted-foreground line-clamp-1">
+                              {event.type === "virtual"
+                                ? "Online · "
+                                : "Onsite · "}
+                              {event.location}
+                            </p>
+                          )}
+                          <p className="text-xs text-muted-foreground">
+                            Ticket code:{" "}
+                            <span className="font-medium">{ticketCode}</span>
+                          </p>
+                        </div>
+                        <QrTicketPreview
+                          qrDataUrl={qrDataUrl}
+                          title={event.title}
+                        />
+                      </div>
                       <p className="text-xs text-muted-foreground">
-                        {formatDateRange(event.start_at, event.end_at)}
+                        Show this QR code at check-in.
                       </p>
-                      {event.location && (
-                        <p className="text-xs text-muted-foreground line-clamp-1">
-                          {event.type === "virtual" ? "Online · " : "Onsite · "}
-                          {event.location}
-                        </p>
-                      )}
                     </div>
                   </Link>
                 </li>
@@ -156,4 +202,3 @@ export default async function MyEventsPage() {
     </main>
   );
 }
-

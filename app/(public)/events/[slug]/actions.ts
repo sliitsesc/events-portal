@@ -2,9 +2,17 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { sendRegistrationEmail } from "@/lib/email";
+import { getTicketCode } from "@/lib/tickets";
 
 type RegisterResult =
-  | { ok: true }
+  | {
+      ok: true;
+      ticket: {
+        registrationId: string;
+        ticketCode: string;
+        walletPath: string;
+      };
+    }
   | { ok: false; error: "NOT_AUTHENTICATED" | "EVENT_NOT_AVAILABLE" | "EVENT_FULL" | "ALREADY_REGISTERED" | "UNKNOWN_ERROR" };
 
 export async function registerForEvent(slug: string): Promise<RegisterResult> {
@@ -43,19 +51,44 @@ export async function registerForEvent(slug: string): Promise<RegisterResult> {
     }
   }
 
-  const { error: insertError } = await supabase
+  const { data: insertedRegistration, error: insertError } = await supabase
     .from("event_registrations")
     .insert({
       event_id: event.id,
       user_id: user.id,
       status: "registered",
-    });
+    })
+    .select("id, created_at")
+    .single();
 
   if (insertError) {
     if (insertError.code === "23505") {
+      const { data: existingRegistration } = await supabase
+        .from("event_registrations")
+        .select("id")
+        .eq("event_id", event.id)
+        .eq("user_id", user.id)
+        .eq("status", "registered")
+        .maybeSingle();
+
+      if (existingRegistration?.id) {
+        return {
+          ok: true,
+          ticket: {
+            registrationId: existingRegistration.id,
+            ticketCode: getTicketCode(existingRegistration.id),
+            walletPath: "/my-events",
+          },
+        };
+      }
+
       return { ok: false, error: "ALREADY_REGISTERED" };
     }
     console.error("Error inserting registration", insertError);
+    return { ok: false, error: "UNKNOWN_ERROR" };
+  }
+
+  if (!insertedRegistration) {
     return { ok: false, error: "UNKNOWN_ERROR" };
   }
 
@@ -87,6 +120,13 @@ export async function registerForEvent(slug: string): Promise<RegisterResult> {
     console.error("Error sending registration email", error);
   }
 
-  return { ok: true };
+  return {
+    ok: true,
+    ticket: {
+      registrationId: insertedRegistration.id,
+      ticketCode: getTicketCode(insertedRegistration.id),
+      walletPath: "/my-events",
+    },
+  };
 }
 
