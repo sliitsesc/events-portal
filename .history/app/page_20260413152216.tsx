@@ -1,46 +1,15 @@
 import Link from "next/link";
-import Image from "next/image";
-import { ArrowRight, CalendarDays, CheckCircle2 } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarDays,
+  CheckCircle2,
+} from "lucide-react";
 
-import { createClient } from "@/lib/supabase/server";
-
-type WeekEvent = {
-  id: string;
-  slug: string;
-  title: string;
-  start_at: string;
-  type: "onsite" | "virtual";
-  location: string | null;
-  flyer_image_url: string | null;
-};
-
-function formatWeekEventDate(startIso: string) {
-  const date = new Date(startIso);
-
-  return new Intl.DateTimeFormat("en", {
-    weekday: "short",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(date);
-}
-
-export default async function Home() {
-  const supabase = await createClient();
-
-  const { data } = await supabase
-    .from("events")
-    .select("id, slug, title, start_at, type, location, flyer_image_url")
-    .eq("status", "published")
-    .gte("start_at", new Date().toISOString())
-    .order("start_at", { ascending: true })
-    .limit(3);
-
-  const weekEvents = (data ?? []) as WeekEvent[];
-
+export default function Home() {
   const valuePoints = [
-    "Join coding workshops, hackathons, and tech talks",
-    "Get instant registration and ticket confirmation",
-    "Keep your QR ticket ready for smooth check-in",
+    "Find and join events in seconds",
+    "Get instant ticket confirmation",
+    "Track attendance with clean check-in flows",
   ];
 
   return (
@@ -53,18 +22,18 @@ export default async function Home() {
           <div className="relative grid items-center gap-8 md:grid-cols-[1.1fr_0.9fr]">
             <div className="flex flex-col gap-5">
               <p className="inline-flex w-fit rounded-full border bg-background/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                SESC Software Engineering Community
+                SESC Events Portal
               </p>
 
               <h1 className="max-w-2xl text-4xl font-black leading-[1.05] tracking-tight sm:text-5xl md:text-6xl">
-                Software Engineering Events,
+                Campus Events,
                 <br />
-                One Student Hub.
+                Zero Chaos.
               </h1>
 
               <p className="max-w-xl text-base text-muted-foreground md:text-lg">
-                Discover SESC workshops, coding sessions, career talks, and
-                community meetups. Register fast and keep your ticket ready.
+                Discover events, secure your spot, and show your ticket at
+                check-in. Built for students and members joining SESC events.
               </p>
 
               <div className="flex flex-wrap gap-3">
@@ -95,45 +64,28 @@ export default async function Home() {
 
             <div className="rounded-2xl border bg-background/85 p-4 md:p-5">
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                This Week In SESC
+                This Week On Campus
               </p>
-              {weekEvents.length === 0 ? (
-                <p className="mt-3 text-sm text-muted-foreground">
-                  No upcoming events this week yet.
-                </p>
-              ) : (
-                <div className="mt-3 space-y-3">
-                  {weekEvents.map((event) => (
-                    <Link
-                      key={event.id}
-                      href={`/events/${event.slug}`}
-                      className="block overflow-hidden rounded-xl border bg-card transition-colors hover:bg-accent/30"
-                    >
-                      {event.flyer_image_url ? (
-                        <div className="h-28 w-full overflow-hidden bg-muted">
-                          <Image
-                            src={event.flyer_image_url}
-                            alt={event.title}
-                            width={640}
-                            height={160}
-                            className="h-full w-full object-cover object-top"
-                            loading="lazy"
-                          />
-                        </div>
-                      ) : null}
-                      <div className="p-3">
-                        <p className="text-sm font-semibold">{event.title}</p>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {formatWeekEventDate(event.start_at)} •{" "}
-                          {event.type === "virtual"
-                            ? "Online"
-                            : event.location || "Onsite"}
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
+              <div className="mt-3 space-y-3">
+                <div className="rounded-xl border bg-card p-3">
+                  <p className="text-sm font-semibold">UI/UX Design Jam</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Fri, 6:00 PM • A503 Auditorium
+                  </p>
                 </div>
-              )}
+                <div className="rounded-xl border bg-card p-3">
+                  <p className="text-sm font-semibold">AI Builders Meetup</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Sat, 10:00 AM • New Building Lab 02
+                  </p>
+                </div>
+                <div className="rounded-xl border bg-card p-3">
+                  <p className="text-sm font-semibold">Career Sprint Webinar</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Sun, 7:30 PM • Online Session
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -141,13 +93,13 @@ export default async function Home() {
         <section className="rounded-2xl border bg-card p-5 md:p-6">
           <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             <span className="rounded-full border px-3 py-1">
-              Built for Software Engineering students
+              Trusted in SLIIT student workflows
             </span>
             <span className="rounded-full border px-3 py-1">
-              @my.sliit.lk verified sign-in
+              Email-gated authentication
             </span>
             <span className="rounded-full border px-3 py-1">
-              Workshops, hackathons, and tech talks
+              Onsite + virtual event support
             </span>
           </div>
         </section>
@@ -161,8 +113,8 @@ export default async function Home() {
               Discover, Register, Attend
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Browse upcoming SE community events, register in one click, and
-              keep QR-ready tickets in one wallet.
+              Browse upcoming events, register with one click, and keep QR-ready
+              tickets in one wallet.
             </p>
             <div className="mt-5 flex gap-3">
               <Link
@@ -188,8 +140,8 @@ export default async function Home() {
               Everything You Need On Event Day
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Keep your ticket code ready, open your QR quickly, and join your
-              workshop or session without delays.
+              Keep your ticket code ready, open your QR quickly, and join the
+              session without delays.
             </p>
             <div className="mt-5 flex gap-3">
               <Link
@@ -217,7 +169,7 @@ export default async function Home() {
             <div className="rounded-lg border bg-background p-4">
               <p className="text-sm font-semibold">1. Explore Events</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Find upcoming SESC coding, design, and career events.
+                Find upcoming sessions by browsing the latest campus events.
               </p>
             </div>
             <div className="rounded-lg border bg-background p-4">
@@ -239,11 +191,11 @@ export default async function Home() {
           <div className="flex flex-col items-start justify-between gap-5 md:flex-row md:items-center">
             <div>
               <h2 className="text-2xl font-bold tracking-tight">
-                Ready For The Next SESC Tech Event?
+                Ready To Join The Next Campus Event?
               </h2>
               <p className="mt-2 max-w-2xl text-sm text-background/80">
-                Register in seconds, save your ticket, and stay connected with
-                the Software Engineering student community.
+                Register in seconds, save your ticket, and never miss what is
+                happening around campus.
               </p>
             </div>
 

@@ -89,11 +89,19 @@ export default async function EventDetailPage(props: PageProps) {
     initiallyRegistered = Boolean(registration);
   }
 
+  const accentColor =
+    event.color_code && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(event.color_code)
+      ? event.color_code
+      : "#4f46e5";
+
   return (
     <main className="min-h-screen w-full flex justify-center">
       <article className="w-full max-w-5xl px-5 py-10 flex flex-col gap-6">
         <header className="rounded-lg border bg-card overflow-hidden">
-          <div className="h-1 w-full bg-foreground/70" />
+          <div
+            className="h-1 w-full"
+            style={{ backgroundColor: accentColor }}
+          />
           <div className="p-5 flex flex-col gap-4">
             <div className="flex items-start justify-between gap-3">
               <h1 className="text-3xl font-bold tracking-tight">
@@ -131,8 +139,6 @@ export default async function EventDetailPage(props: PageProps) {
                   alt={event.title}
                   width={1200}
                   height={700}
-                  unoptimized
-                  sizes="(min-width: 1024px) 58vw, 100vw"
                   className="w-full max-h-[520px] object-cover"
                 />
               </div>
@@ -181,3 +187,4 @@ export default async function EventDetailPage(props: PageProps) {
     </main>
   );
 }
+

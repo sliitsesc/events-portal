@@ -110,13 +110,13 @@ export default async function Home() {
                       className="block overflow-hidden rounded-xl border bg-card transition-colors hover:bg-accent/30"
                     >
                       {event.flyer_image_url ? (
-                        <div className="h-28 w-full overflow-hidden bg-muted">
+                        <div className="h-24 w-full overflow-hidden bg-muted">
                           <Image
                             src={event.flyer_image_url}
                             alt={event.title}
                             width={640}
                             height={160}
-                            className="h-full w-full object-cover object-top"
+                            className="h-full w-full object-cover"
                             loading="lazy"
                           />
                         </div>

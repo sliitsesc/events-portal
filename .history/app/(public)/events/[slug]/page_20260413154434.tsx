@@ -131,8 +131,6 @@ export default async function EventDetailPage(props: PageProps) {
                   alt={event.title}
                   width={1200}
                   height={700}
-                  unoptimized
-                  sizes="(min-width: 1024px) 58vw, 100vw"
                   className="w-full max-h-[520px] object-cover"
                 />
               </div>
@@ -181,3 +179,4 @@ export default async function EventDetailPage(props: PageProps) {
     </main>
   );
 }
+
