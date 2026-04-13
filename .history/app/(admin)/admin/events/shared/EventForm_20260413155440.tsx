@@ -40,7 +40,9 @@ export function EventForm({ initialEvent }: EventFormProps) {
     initialEvent?.type ?? "onsite",
   );
   const [location, setLocation] = useState(initialEvent?.location ?? "");
-  const [meetingUrl, setMeetingUrl] = useState(initialEvent?.meeting_url ?? "");
+  const [meetingUrl, setMeetingUrl] = useState(
+    initialEvent?.meeting_url ?? "",
+  );
   const [startAt, setStartAt] = useState(
     initialEvent?.start_at?.slice(0, 16) ?? "",
   );
@@ -52,7 +54,9 @@ export function EventForm({ initialEvent }: EventFormProps) {
     initialEvent?.status ?? "draft",
   );
   const [colorCode, setColorCode] = useState(initialEvent?.color_code ?? "");
-  const [flyerUrl, setFlyerUrl] = useState(initialEvent?.flyer_image_url ?? "");
+  const [flyerUrl, setFlyerUrl] = useState(
+    initialEvent?.flyer_image_url ?? "",
+  );
   const [error, setError] = useState<string | null>(null);
 
   const supabase = createClient();
@@ -94,7 +98,6 @@ export function EventForm({ initialEvent }: EventFormProps) {
         await upsertEventOnServer({
           ...payload,
           id: initialEvent?.id,
-          start_at: payload.start_at,
           end_at: payload.end_at,
         });
 
@@ -157,7 +160,6 @@ export function EventForm({ initialEvent }: EventFormProps) {
         <div className="space-y-2">
           <label className="block text-sm font-medium">Type</label>
           <select
-            title="Event type"
             className="block w-full rounded-md border bg-background px-3 py-2 text-sm"
             value={type}
             onChange={(e) => setType(e.target.value as "onsite" | "virtual")}
@@ -212,7 +214,6 @@ export function EventForm({ initialEvent }: EventFormProps) {
         <div className="space-y-2">
           <label className="block text-sm font-medium">Status</label>
           <select
-            title="Event status"
             className="block w-full rounded-md border bg-background px-3 py-2 text-sm"
             value={status}
             onChange={(e) =>
@@ -226,11 +227,23 @@ export function EventForm({ initialEvent }: EventFormProps) {
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium">Event color</label>
-          <Input
-            value={colorCode}
-            onChange={(e) => setColorCode(e.target.value)}
-            placeholder="#4F46E5"
-          />
+          <div className="flex items-center gap-2">
+            <Input
+              value={colorCode}
+              onChange={(e) => setColorCode(e.target.value)}
+              placeholder="#4F46E5"
+            />
+            <div
+              className="h-8 w-8 rounded border"
+              style={{
+                backgroundColor:
+                  colorCode &&
+                  /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(colorCode)
+                    ? colorCode
+                    : "transparent",
+              }}
+            />
+          </div>
         </div>
         <div className="space-y-2 md:col-span-2">
           <label className="block text-sm font-medium">Flyer image</label>
@@ -255,3 +268,4 @@ export function EventForm({ initialEvent }: EventFormProps) {
     </form>
   );
 }
+

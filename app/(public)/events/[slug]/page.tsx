@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Image from "next/image";
 
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
@@ -88,19 +89,11 @@ export default async function EventDetailPage(props: PageProps) {
     initiallyRegistered = Boolean(registration);
   }
 
-  const accentColor =
-    event.color_code && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(event.color_code)
-      ? event.color_code
-      : "#4f46e5";
-
   return (
     <main className="min-h-screen w-full flex justify-center">
-      <article className="w-full max-w-3xl px-5 py-10 flex flex-col gap-6">
+      <article className="w-full max-w-5xl px-5 py-10 flex flex-col gap-6">
         <header className="rounded-lg border bg-card overflow-hidden">
-          <div
-            className="h-1 w-full"
-            style={{ backgroundColor: accentColor }}
-          />
+          <div className="h-1 w-full bg-foreground/70" />
           <div className="p-5 flex flex-col gap-4">
             <div className="flex items-start justify-between gap-3">
               <h1 className="text-3xl font-bold tracking-tight">
@@ -129,53 +122,62 @@ export default async function EventDetailPage(props: PageProps) {
           </div>
         </header>
 
-        {event.flyer_image_url && (
-          <div className="overflow-hidden rounded-lg border bg-muted">
-            <img
-              src={event.flyer_image_url}
-              alt={event.title}
-              className="w-full max-h-[480px] object-cover"
-            />
+        <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
+          <div className="flex flex-col gap-6">
+            {event.flyer_image_url && (
+              <div className="overflow-hidden rounded-lg border bg-muted">
+                <Image
+                  src={event.flyer_image_url}
+                  alt={event.title}
+                  width={1200}
+                  height={700}
+                  unoptimized
+                  sizes="(min-width: 1024px) 58vw, 100vw"
+                  className="w-full max-h-[520px] object-cover"
+                />
+              </div>
+            )}
           </div>
-        )}
 
-        <section className="prose prose-sm sm:prose-base dark:prose-invert max-w-none">
-          <h2>About this event</h2>
-          <p>{event.description}</p>
-        </section>
+          <aside className="flex flex-col gap-4 lg:sticky lg:top-20">
+            <section className="prose prose-sm sm:prose-base dark:prose-invert max-w-none rounded-lg border bg-card p-5">
+              <h2>About this event</h2>
+              <p>{event.description}</p>
+            </section>
 
-        <section className="rounded-lg border bg-card p-5 flex flex-col gap-2">
-          <h2 className="font-semibold text-lg">How to join</h2>
-          {event.type === "virtual" && event.meeting_url ? (
-            <p className="text-sm text-muted-foreground">
-              This is an online event. You can join using this link:{" "}
-              <a
-                href={event.meeting_url}
-                target="_blank"
-                rel="noreferrer"
-                className="font-medium underline underline-offset-4"
-              >
-                {event.meeting_url}
-              </a>
-            </p>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              This is an onsite event. Please arrive at the venue a few minutes
-              early so we can start on time.
-            </p>
-          )}
-        </section>
+            <section className="rounded-lg border bg-card p-5 flex flex-col gap-2">
+              <h2 className="font-semibold text-lg">How to join</h2>
+              {event.type === "virtual" && event.meeting_url ? (
+                <p className="text-sm text-muted-foreground">
+                  This is an online event. You can join using this link:{" "}
+                  <a
+                    href={event.meeting_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-medium underline underline-offset-4"
+                  >
+                    {event.meeting_url}
+                  </a>
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  This is an onsite event. Please arrive at the venue a few
+                  minutes early so we can start on time.
+                </p>
+              )}
+            </section>
 
-        <section className="rounded-lg border bg-muted/40 p-5 flex flex-col gap-2">
-          <h2 className="font-semibold text-lg">Registration</h2>
-          <EventRegistrationSection
-            slug={event.slug}
-            isLoggedIn={Boolean(user)}
-            initiallyRegistered={initiallyRegistered}
-          />
-        </section>
+            <section className="rounded-lg border bg-muted/40 p-5 flex flex-col gap-2">
+              <h2 className="font-semibold text-lg">Registration</h2>
+              <EventRegistrationSection
+                slug={event.slug}
+                isLoggedIn={Boolean(user)}
+                initiallyRegistered={initiallyRegistered}
+              />
+            </section>
+          </aside>
+        </div>
       </article>
     </main>
   );
 }
-

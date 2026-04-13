@@ -40,7 +40,9 @@ export function EventForm({ initialEvent }: EventFormProps) {
     initialEvent?.type ?? "onsite",
   );
   const [location, setLocation] = useState(initialEvent?.location ?? "");
-  const [meetingUrl, setMeetingUrl] = useState(initialEvent?.meeting_url ?? "");
+  const [meetingUrl, setMeetingUrl] = useState(
+    initialEvent?.meeting_url ?? "",
+  );
   const [startAt, setStartAt] = useState(
     initialEvent?.start_at?.slice(0, 16) ?? "",
   );
@@ -52,7 +54,9 @@ export function EventForm({ initialEvent }: EventFormProps) {
     initialEvent?.status ?? "draft",
   );
   const [colorCode, setColorCode] = useState(initialEvent?.color_code ?? "");
-  const [flyerUrl, setFlyerUrl] = useState(initialEvent?.flyer_image_url ?? "");
+  const [flyerUrl, setFlyerUrl] = useState(
+    initialEvent?.flyer_image_url ?? "",
+  );
   const [error, setError] = useState<string | null>(null);
 
   const supabase = createClient();
@@ -255,3 +259,4 @@ export function EventForm({ initialEvent }: EventFormProps) {
     </form>
   );
 }
+
