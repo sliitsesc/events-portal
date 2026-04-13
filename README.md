@@ -1,109 +1,198 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# SESC Events Portal
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+SESC Events Portal is a Next.js + Supabase web app for publishing student events, managing registrations, and handling attendance workflows for SESC-SLIIT.
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+## What This Project Includes
 
-## Features
+- Public event discovery and event detail pages
+- Registration flow with capacity checks
+- My Events dashboard with generated QR ticket previews
+- Admin panel for creating/editing events
+- Admin registrant list with attendance toggling
+- Admin QR check-in page route (scanner UI placeholder currently)
+- Supabase Auth with server-side session refresh through proxy
+- Profile completion flow for non-admin users
+- Optional registration confirmation emails via Resend
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Proxy
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+## Tech Stack
 
-## Demo
+- Next.js (App Router)
+- React 19 + TypeScript
+- Tailwind CSS + shadcn/ui primitives
+- Supabase (`@supabase/ssr`, `@supabase/supabase-js`)
+- QR generation via `qrcode`
+- Transactional email via `resend`
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+## App Routes
 
-## Deploy to Vercel
+### Public/User Routes
 
-Vercel deployment will guide you through creating a Supabase account and project.
+- `/` home page
+- `/events` published events listing
+- `/events/[slug]` event details + registration
+- `/my-events` registered events + ticket QR preview
+- `/auth/login`, `/auth/sign-up`, `/auth/forgot-password`, `/auth/update-password`
+- `/complete-profile` required for non-admin users without `student_id`
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+### Admin Routes
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+- `/admin/events` event list
+- `/admin/events/new` create event
+- `/admin/events/[id]/edit` edit event
+- `/admin/events/[id]/registrants` registrant management + attendance toggle
+- `/admin/events/[id]/scan` QR check-in page (placeholder)
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+## Authentication And Access Rules
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+- Supabase Auth session is refreshed in proxy middleware.
+- Non-authenticated users are redirected from protected routes to `/auth/login`.
+- OAuth callback currently allows only emails ending with `@my.sliit.lk`.
+- Non-admin users without a profile `student_id` are redirected to `/complete-profile`.
+- Admin routes validate `profiles.is_admin` before rendering.
 
-## Clone and run locally
+## Environment Variables
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+Create a `.env.local` in project root:
 
-2. Create a Next.js app using the Supabase Starter template npx command
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY
 
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
-   ```
+# Optional fallback for legacy code paths
+NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
 
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
+# Optional: for links inside transactional emails
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
+# Optional: enable registration email sending
+RESEND_API_KEY=YOUR_RESEND_API_KEY
+RESEND_FROM_EMAIL="SESC Events <events@events.sliitsesc.org>"
+```
 
-3. Use `cd` to change into the app's directory
+Notes:
 
-   ```bash
-   cd with-supabase-app
-   ```
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` is the primary key variable used by this project.
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` is only kept as compatibility fallback in some files.
 
-4. Rename `.env.example` to `.env.local` and update the following:
+## Supabase Requirements
 
-  ```env
-  NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=[INSERT SUPABASE PROJECT API PUBLISHABLE OR ANON KEY]
-  ```
-  > [!NOTE]
-  > This example uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, which refers to Supabase's new **publishable** key format.
-  > Both legacy **anon** keys and new **publishable** keys can be used with this variable name during the transition period. Supabase's dashboard may show `NEXT_PUBLIC_SUPABASE_ANON_KEY`; its value can be used in this example.
-  > See the [full announcement](https://github.com/orgs/supabase/discussions/29260) for more information.
+This repository currently does not include migration files. Ensure your Supabase project has these resources.
 
-  Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
+### Tables
 
-5. You can now run the Next.js local development server:
+#### `profiles`
 
-   ```bash
-   npm run dev
-   ```
+Suggested columns:
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+- `id` uuid primary key references `auth.users(id)`
+- `email` text
+- `full_name` text
+- `student_id` text
+- `is_admin` boolean default false
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+Useful constraints:
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+- unique(`student_id`) for non-null values
 
-## Feedback and issues
+#### `events`
 
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
+Suggested columns:
 
-## More Supabase examples
+- `id` uuid primary key
+- `slug` text unique
+- `title` text
+- `description` text
+- `type` text (`onsite` or `virtual`)
+- `location` text nullable
+- `meeting_url` text nullable
+- `start_at` timestamptz
+- `end_at` timestamptz
+- `capacity` integer nullable
+- `status` text (`draft`, `published`, `archived`)
+- `flyer_image_url` text nullable
+- `color_code` text nullable
+- `created_by` uuid nullable references `auth.users(id)`
 
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+#### `event_registrations`
+
+Suggested columns:
+
+- `id` uuid primary key
+- `event_id` uuid references `events(id)`
+- `user_id` uuid references `auth.users(id)`
+- `status` text (uses `registered` in current code)
+- `attended` boolean default false
+- `created_at` timestamptz default now()
+
+Useful constraints:
+
+- unique(`event_id`, `user_id`) to prevent duplicate registrations
+
+#### `audit_logs` (optional, utility exists)
+
+Suggested columns:
+
+- `id` uuid primary key
+- `admin_id` uuid references `auth.users(id)`
+- `action_description` text
+- `created_at` timestamptz default now()
+
+### Storage Bucket
+
+- Bucket name: `event-flyers`
+- Used for event flyer uploads from the admin event form
+- Must allow uploads and public URL access according to your policy model
+
+### RLS Recommendations
+
+Apply Row Level Security policies appropriate for your org. At minimum:
+
+- `profiles`: users can read/update their own row; admins may read broader data if needed
+- `events`: public can read `published`; admins can create/update/delete
+- `event_registrations`: users can create/read their own registrations; admins can read all and update attendance
+- `audit_logs`: insert/read limited to admins
+
+## Local Development
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Add `.env.local` values (see above).
+
+3. Run development server:
+
+```bash
+npm run dev
+```
+
+4. Open http://localhost:3000
+
+## Scripts
+
+- `npm run dev` start dev server
+- `npm run build` production build
+- `npm run start` run built app
+- `npm run lint` run ESLint
+
+## Current Limitations / Next Work
+
+- Admin QR scanner page exists, but camera/scanner logic is not implemented yet.
+- Database schema is documented here but not versioned as SQL migrations in the repo.
+- Audit logs utility exists, but no dedicated admin UI page is currently wired.
+
+## Project Structure (High Level)
+
+- `app/(public)` public event browsing and registration
+- `app/(user)` user-specific views like My Events
+- `app/(admin)` admin dashboard and management workflows
+- `app/auth` auth pages and callback route
+- `lib/supabase` browser/server/proxy Supabase clients
+- `lib/email.ts` registration email sender (Resend)
+- `lib/tickets.ts` ticket payload and QR generation
+
+## Acknowledgements
+
+Built for SESC-SLIIT event operations and student engagement workflows.
