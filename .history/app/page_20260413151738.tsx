@@ -1,10 +1,5 @@
 import Link from "next/link";
-import {
-  ArrowRight,
-  CalendarDays,
-  CheckCircle2,
-  ShieldCheck,
-} from "lucide-react";
+import { ArrowRight, CalendarDays, CheckCircle2, ShieldCheck } from "lucide-react";
 
 export default function Home() {
   const valuePoints = [
@@ -93,15 +88,9 @@ export default function Home() {
 
         <section className="rounded-2xl border bg-card p-5 md:p-6">
           <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-            <span className="rounded-full border px-3 py-1">
-              Trusted in SLIIT student workflows
-            </span>
-            <span className="rounded-full border px-3 py-1">
-              Email-gated authentication
-            </span>
-            <span className="rounded-full border px-3 py-1">
-              Onsite + virtual event support
-            </span>
+            <span className="rounded-full border px-3 py-1">Trusted in SLIIT student workflows</span>
+            <span className="rounded-full border px-3 py-1">Email-gated authentication</span>
+            <span className="rounded-full border px-3 py-1">Onsite + virtual event support</span>
           </div>
         </section>
 
