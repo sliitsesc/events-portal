@@ -1,11 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import {
-  Html5Qrcode,
-  Html5QrcodeScannerState,
-  Html5QrcodeSupportedFormats,
-} from "html5-qrcode";
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode";
 import { processScan } from "@/app/actions/scan";
 
 export default function QRScanner({ eventId }: { eventId: string }) {
@@ -21,7 +17,6 @@ export default function QRScanner({ eventId }: { eventId: string }) {
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const isProcessingRef = useRef(false);
   const resumeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const startPromiseRef = useRef<Promise<void> | null>(null);
 
   const restartCamera = () => {
     setCameraError(null);
@@ -35,28 +30,6 @@ export default function QRScanner({ eventId }: { eventId: string }) {
 
   useEffect(() => {
     let isUnmounted = false;
-
-    const stopAndClearScanner = async (scanner: Html5Qrcode | null) => {
-      if (!scanner) return;
-
-      try {
-        const state = scanner.getState();
-        if (
-          state === Html5QrcodeScannerState.SCANNING ||
-          state === Html5QrcodeScannerState.PAUSED
-        ) {
-          await scanner.stop();
-        }
-      } catch {
-        // Ignore stop errors during teardown.
-      }
-
-      try {
-        await scanner.clear();
-      } catch {
-        // Ignore clear errors during teardown.
-      }
-    };
 
     if (!window.isSecureContext) {
       setCameraError(
@@ -153,16 +126,10 @@ export default function QRScanner({ eventId }: { eventId: string }) {
 
       if (!isUnmounted) {
         setIsStartingCamera(false);
-      } else {
-        await stopAndClearScanner(scanner);
-        if (scannerRef.current === scanner) {
-          scannerRef.current = null;
-        }
       }
     };
 
-    const startPromise = startScanner();
-    startPromiseRef.current = startPromise;
+    startScanner();
 
     // Cleanup function when the component unmounts (leaving the page)
     return () => {
@@ -173,17 +140,21 @@ export default function QRScanner({ eventId }: { eventId: string }) {
         resumeTimeoutRef.current = null;
       }
 
-      const scannerAtCleanup = scannerRef.current;
-      scannerRef.current = null;
+      if (scannerRef.current) {
+        scannerRef.current
+          .stop()
+          .catch(() => {
+            // Ignore stop errors while unmounting.
+          })
+          .finally(() => {
+            scannerRef.current?.clear().catch(() => {
+              // Ignore clear errors while unmounting.
+            });
+            scannerRef.current = null;
+          });
 
-      void (async () => {
-        try {
-          await startPromiseRef.current;
-        } catch {
-          // Ignore start errors during teardown.
-        }
-        await stopAndClearScanner(scannerAtCleanup);
-      })();
+        scannerRef.current = null;
+      }
     };
   }, [eventId, retryCount]);
 

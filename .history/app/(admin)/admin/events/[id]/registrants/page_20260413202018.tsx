@@ -5,16 +5,13 @@ import { AttendanceToggle } from "./AttendanceToggle";
 
 type RegistrantRow = {
   id: string;
-  user_id: string;
   created_at: string;
   status: string;
   attended: boolean;
-};
-
-type ProfileRow = {
-  id: string;
-  full_name: string | null;
-  email: string | null;
+  profiles: {
+    full_name: string | null;
+    email: string | null;
+  }[] | null;
 };
 
 function formatTimestamp(iso: string) {
@@ -50,7 +47,7 @@ export default async function EventRegistrantsPage(props: PageProps) {
 
   const { data, error } = await supabase
     .from("event_registrations")
-    .select("id, user_id, created_at, status, attended")
+    .select("id, created_at, status, attended, profiles ( full_name, email )")
     .eq("event_id", event.id)
     .order("created_at", { ascending: true });
 
@@ -59,26 +56,6 @@ export default async function EventRegistrantsPage(props: PageProps) {
   }
 
   const rows = (data ?? []) as RegistrantRow[];
-  const userIds = [...new Set(rows.map((row) => row.user_id).filter(Boolean))];
-
-  let profileMap = new Map<string, ProfileRow>();
-  if (userIds.length > 0) {
-    const { data: profileData, error: profileError } = await supabase
-      .from("profiles")
-      .select("id, full_name, email")
-      .in("id", userIds);
-
-    if (profileError) {
-      console.error("Error loading profiles for registrants", profileError);
-    } else {
-      profileMap = new Map(
-        ((profileData ?? []) as ProfileRow[]).map((profile) => [
-          profile.id,
-          profile,
-        ]),
-      );
-    }
-  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -109,32 +86,32 @@ export default async function EventRegistrantsPage(props: PageProps) {
             </thead>
             <tbody>
               {rows.map((row) => {
-                const profile = profileMap.get(row.user_id) ?? null;
+                const profile = row.profiles?.[0] ?? null;
 
                 return (
                   <tr key={row.id} className="border-t">
-                    <td className="px-4 py-2 align-top">
-                      {profile?.full_name ?? "—"}
-                    </td>
-                    <td className="px-4 py-2 align-top">
-                      <span className="text-xs text-muted-foreground">
-                        {profile?.email ?? "—"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2 align-top">
-                      <span className="text-xs text-muted-foreground">
-                        {formatTimestamp(row.created_at)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2 align-top text-xs capitalize">
-                      {row.status}
-                    </td>
-                    <td className="px-4 py-2 align-top text-xs">
-                      <AttendanceToggle
-                        registrationId={row.id}
-                        initialAttended={row.attended}
-                      />
-                    </td>
+                  <td className="px-4 py-2 align-top">
+                    {profile?.full_name ?? "—"}
+                  </td>
+                  <td className="px-4 py-2 align-top">
+                    <span className="text-xs text-muted-foreground">
+                      {profile?.email ?? "—"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2 align-top">
+                    <span className="text-xs text-muted-foreground">
+                      {formatTimestamp(row.created_at)}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2 align-top text-xs capitalize">
+                    {row.status}
+                  </td>
+                  <td className="px-4 py-2 align-top text-xs">
+                    <AttendanceToggle
+                      registrationId={row.id}
+                      initialAttended={row.attended}
+                    />
+                  </td>
                   </tr>
                 );
               })}
@@ -145,3 +122,4 @@ export default async function EventRegistrantsPage(props: PageProps) {
     </div>
   );
 }
+
