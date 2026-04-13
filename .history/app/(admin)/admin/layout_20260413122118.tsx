@@ -61,7 +61,7 @@ export default async function AdminLayout({ children }: Props) {
               href="/admin/events"
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
-              Audit Logs
+              Events
             </Link>
             <Link
               href="/admin/events"

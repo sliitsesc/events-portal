@@ -122,18 +122,12 @@ export default async function AdminEventsPage() {
                       >
                         Registrants
                       </Link>
-                      {event.type === "onsite" ? (
-                        <Link
-                          href={`/admin/events/${event.id}/scan`}
-                          className="ml-2 text-xs font-semibold text-orange-600 hover:text-orange-700 underline-offset-4 hover:underline"
-                        >
-                          Scan QR
-                        </Link>
-                      ) : (
-                        <span className="ml-2 text-xs text-muted-foreground/70">
-                          No scan
-                        </span>
-                      )}
+                      <Link
+                        href={`/admin/events/${event.id}/scan`}
+                        className="text-xs font-semibold text-orange-600 hover:text-orange-700 underline-offset-4 hover:underline ml-2"
+                      >
+                        Scan QR
+                      </Link>
                     </div>
                   </td>
                 </tr>
