@@ -1,5 +1,9 @@
 import Link from "next/link";
-import { ArrowRight, CalendarDays, CheckCircle2 } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarDays,
+  CheckCircle2,
+} from "lucide-react";
 
 export default function Home() {
   const valuePoints = [
