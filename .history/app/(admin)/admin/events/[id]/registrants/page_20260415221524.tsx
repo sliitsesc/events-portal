@@ -63,12 +63,6 @@ export default async function EventRegistrantsPage(props: PageProps) {
     if (profileError) {
       console.error("Error loading profiles for registrants", profileError);
     } else {
-      if ((profileData?.length ?? 0) < userIds.length && !adminSupabase) {
-        console.warn(
-          "Profiles query returned partial rows. This usually means profiles RLS blocks admin-wide reads. Configure an admin SELECT policy or SUPABASE_SERVICE_ROLE_KEY.",
-        );
-      }
-
       profileMap = new Map(
         ((profileData ?? []) as ProfileRow[]).map((profile) => [
           profile.id,
@@ -115,11 +109,8 @@ export default async function EventRegistrantsPage(props: PageProps) {
       ).filter(
         (
           profile,
-        ): profile is {
-          id: string;
-          email: string | null;
-          full_name: string | null;
-        } => profile !== null,
+        ): profile is { id: string; email: string | null; full_name: string | null } =>
+          profile !== null,
       );
 
       if (recoveredProfiles.length > 0) {
