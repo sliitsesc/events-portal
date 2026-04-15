@@ -132,17 +132,20 @@ export function CompleteProfileForm({
 
       if (existingProfileError) throw existingProfileError;
 
+      let isAdmin = false;
+
       if (existingProfile) {
-        const { error: updateError } = await supabase
+        const { data: updatedProfile, error: updateError } = await supabase
           .from("profiles")
           .update({ student_id: parsed.data.student_id })
           .eq("id", user.id)
-          .select("id")
+          .select("is_admin")
           .single();
 
         if (updateError) throw updateError;
+        isAdmin = Boolean(updatedProfile?.is_admin);
       } else {
-        const { error: insertError } = await supabase
+        const { data: insertedProfile, error: insertError } = await supabase
           .from("profiles")
           .insert({
             id: user.id,
@@ -154,10 +157,11 @@ export function CompleteProfileForm({
             student_id: parsed.data.student_id,
             is_admin: false,
           })
-          .select("id")
+          .select("is_admin")
           .single();
 
         if (insertError) throw insertError;
+        isAdmin = Boolean(insertedProfile?.is_admin);
       }
 
       const { error: metadataError } = await supabase.auth.updateUser({
