@@ -36,48 +36,6 @@ export default function QRScanner({ eventId }: { eventId: string }) {
   useEffect(() => {
     let isUnmounted = false;
 
-    const getRegistrationIdFromPayload = (payload: unknown): string | null => {
-      if (!payload || typeof payload !== "object") {
-        return null;
-      }
-
-      const p = payload as {
-        registrationId?: unknown;
-        r_id?: unknown;
-      };
-
-      if (typeof p.registrationId === "string" && p.registrationId.trim()) {
-        return p.registrationId;
-      }
-
-      if (typeof p.r_id === "string" && p.r_id.trim()) {
-        return p.r_id;
-      }
-
-      return null;
-    };
-
-    const getEventIdFromPayload = (payload: unknown): string | null => {
-      if (!payload || typeof payload !== "object") {
-        return null;
-      }
-
-      const p = payload as {
-        eventId?: unknown;
-        e_id?: unknown;
-      };
-
-      if (typeof p.eventId === "string" && p.eventId.trim()) {
-        return p.eventId;
-      }
-
-      if (typeof p.e_id === "string" && p.e_id.trim()) {
-        return p.e_id;
-      }
-
-      return null;
-    };
-
     const stopAndClearScanner = async (scanner: Html5Qrcode | null) => {
       if (!scanner) return;
 
@@ -141,28 +99,12 @@ export default function QRScanner({ eventId }: { eventId: string }) {
         try {
           const payload = JSON.parse(decodedText);
 
-          const scannedRegistrationId = getRegistrationIdFromPayload(payload);
-          const scannedEventId = getEventIdFromPayload(payload);
-
-          if (!scannedRegistrationId) {
-            if (!isUnmounted) {
-              setScanResult({ success: false, message: "Invalid QR Format" });
-            }
-            return;
+          if (payload.r_id) {
+            const result = await processScan(eventId, payload.r_id);
+            if (!isUnmounted) setScanResult(result);
+          } else if (!isUnmounted) {
+            setScanResult({ success: false, message: "Invalid QR Format" });
           }
-
-          if (scannedEventId && scannedEventId !== eventId) {
-            if (!isUnmounted) {
-              setScanResult({
-                success: false,
-                message: "This ticket belongs to a different event.",
-              });
-            }
-            return;
-          }
-
-          const result = await processScan(eventId, scannedRegistrationId);
-          if (!isUnmounted) setScanResult(result);
         } catch {
           if (!isUnmounted) {
             setScanResult({ success: false, message: "Unrecognized QR Code" });

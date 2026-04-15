@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -16,10 +16,6 @@ export function AttendanceToggle({ registrationId, initialAttended }: Props) {
   const [attended, setAttended] = useState(initialAttended);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-
-  useEffect(() => {
-    setAttended(initialAttended);
-  }, [initialAttended]);
 
   const onClick = () => {
     startTransition(async () => {
