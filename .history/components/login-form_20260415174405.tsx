@@ -163,8 +163,9 @@ export function LoginForm({
                 accounts can sign in.
               </p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </CardContent>
+      </Card>
       </div>
     </div>
   );
