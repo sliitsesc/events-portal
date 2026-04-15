@@ -11,6 +11,7 @@ import { createClient } from "@/lib/supabase/client";
 
 export function Navbar() {
   const [email, setEmail] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState<string>("Student");
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -24,6 +25,7 @@ export function Navbar() {
 
       if (!user) {
         setEmail(null);
+        setDisplayName("Student");
         setIsAdmin(false);
         return;
       }
@@ -32,11 +34,17 @@ export function Navbar() {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("is_admin")
+        .select("is_admin, full_name")
         .eq("id", user.id)
         .maybeSingle();
 
       setIsAdmin(Boolean(profile?.is_admin));
+      setDisplayName(
+        profile?.full_name?.trim() ||
+          user.user_metadata?.full_name ||
+          user.email?.split("@")[0] ||
+          "Student",
+      );
     };
 
     loadSession();
@@ -89,7 +97,7 @@ export function Navbar() {
           <div className="hidden md:flex ml-auto items-center gap-2">
             {email ? (
               <div className="flex items-center gap-4">
-                Hey, {email}! <LogoutButton />
+                Hey, {displayName}! <LogoutButton />
               </div>
             ) : (
               <Button asChild size="sm" variant="default">
@@ -140,7 +148,7 @@ export function Navbar() {
             {email ? (
               <div className="flex items-center justify-between gap-3">
                 <p className="text-xs text-muted-foreground truncate max-w-[70%]">
-                  Hey, {email}!
+                  Hey, {displayName}!
                 </p>
                 <LogoutButton />
               </div>
