@@ -107,9 +107,7 @@ export function EventForm({ initialEvent }: EventFormProps) {
         await upsertEventOnServer({
           ...payload,
           id: initialEvent?.id,
-
-          // THE FIX: Explicitly cast it to a string to satisfy TypeScript
-          start_at: payload.start_at as string,
+          // (Removed the duplicate start_at/end_at here since they are already in the payload)
         });
 
         router.push("/admin/events");
