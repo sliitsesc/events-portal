@@ -44,7 +44,7 @@ export function LoginForm({
         redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(safeRedirect)}`,
       };
 
-      // 3. THE BACKDOOR LOGIC:
+      // 3. THE BACKDOOR LOGIC: 
       // Only apply the SLIIT domain restriction if they are NOT a VIP.
       if (!isVip) {
         authOptions.queryParams = {
@@ -81,6 +81,8 @@ export function LoginForm({
     "One-click registration for all SESC events",
     "Instant ticket and QR access after sign-in",
   ];
+
+
 
   return (
     <div
