@@ -116,7 +116,7 @@ export default async function EventRegistrantsPage(props: PageProps) {
             };
           }),
         )
-      ).filter((profile: unknown): profile is ProfileRow => profile !== null);
+      ).filter((profile): profile is ProfileRow => profile !== null);
 
       if (recoveredProfiles.length > 0) {
         const { error: upsertRecoveredError } = await adminSupabase
@@ -131,9 +131,7 @@ export default async function EventRegistrantsPage(props: PageProps) {
         }
 
         recoveredProfiles.forEach((profile) => {
-          if (profile && profile.id) {
-            profileMap.set(profile.id, profile);
-          }
+          profileMap.set(profile.id, profile);
         });
       }
     }

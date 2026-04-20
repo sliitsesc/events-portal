@@ -131,9 +131,7 @@ export default async function EventRegistrantsPage(props: PageProps) {
         }
 
         recoveredProfiles.forEach((profile) => {
-          if (profile && profile.id) {
-            profileMap.set(profile.id, profile);
-          }
+          profileMap.set(profile.id, profile);
         });
       }
     }
