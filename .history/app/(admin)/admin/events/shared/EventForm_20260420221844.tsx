@@ -184,7 +184,7 @@ export function EventForm({ initialEvent }: EventFormProps) {
         {type === "industry_visit" && (
           <div className="space-y-2 mt-4 rounded-lg border border-orange-200 bg-orange-50/50 p-4">
             <label className="block text-sm font-medium text-orange-800">
-              Seat Capacity
+              Bus Seat Capacity
             </label>
             <input
               type="number"
@@ -196,7 +196,7 @@ export function EventForm({ initialEvent }: EventFormProps) {
               required={type === "industry_visit"}
             />
             <p className="text-xs text-orange-700/80">
-              Required for industry visits to prevent overbooking the seat.
+              Required for industry visits to prevent overbooking the bus.
             </p>
           </div>
         )}
@@ -234,17 +234,15 @@ export function EventForm({ initialEvent }: EventFormProps) {
             onChange={(e) => setEndAt(e.target.value)}
           />
         </div>
-        {type !== "industry_visit" && (
-          <div className="space-y-2">
-            <label className="block text-sm font-medium">Capacity</label>
-            <Input
-              type="number"
-              min={0}
-              value={capacity}
-              onChange={(e) => setCapacity(e.target.value)}
-            />
-          </div>
-        )}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium">Capacity</label>
+          <Input
+            type="number"
+            min={0}
+            value={capacity}
+            onChange={(e) => setCapacity(e.target.value)}
+          />
+        </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium">Status</label>
           <select

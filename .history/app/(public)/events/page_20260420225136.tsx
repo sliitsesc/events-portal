@@ -82,8 +82,17 @@ async function EventsList() {
         ? event.color_code
         : "#4f46e5";
 
-    return (
-      <li key={event.id}>
+  return (
+    <ul className="grid gap-4 md:grid-cols-2">
+      {events.map((event) => {
+        const accentColor =
+          event.color_code &&
+          /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(event.color_code)
+            ? event.color_code
+            : "#4f46e5";
+
+        return (
+          <li key={event.id}>
         <Link
           href={`/events/${event.slug}`}
           className="group block overflow-hidden rounded-lg border bg-card hover:shadow-md transition-shadow"
@@ -109,40 +118,9 @@ async function EventsList() {
           </div>
         </Link>
       </li>
-    );
-  };
-
-  return (
-    <div className="flex flex-col gap-12 pb-10">
-      {industryVisits.length > 0 && (
-        <section className="rounded-2xl border border-orange-200 bg-orange-50/50 p-6 md:p-8">
-          <div className="mb-6 flex flex-wrap items-center gap-3">
-            <h2 className="text-2xl font-bold tracking-tight text-orange-900">
-              🚌 Exclusive Industry Visits
-            </h2>
-            <span className="rounded-full bg-orange-200 px-3 py-1 text-xs font-bold text-orange-800">
-              Limited Seats
-            </span>
-          </div>
-          <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {industryVisits.map(renderEvent)}
-          </ul>
-        </section>
-      )}
-
-      <section>
-        <h2 className="mb-6 text-2xl font-bold tracking-tight">
-          Upcoming Campus Events
-        </h2>
-        {regularEvents.length === 0 ? (
-          <p className="text-muted-foreground">No regular campus events right now.</p>
-        ) : (
-          <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {regularEvents.map(renderEvent)}
-          </ul>
-        )}
-      </section>
-    </div>
+        );
+      })}
+    </ul>
   );
 }
 

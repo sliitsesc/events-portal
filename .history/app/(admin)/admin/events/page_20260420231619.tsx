@@ -135,8 +135,6 @@ export default async function AdminEventsPage() {
                           No scan
                         </span>
                       )}
-                      
-                      <DeleteEventButton eventId={event.id} eventTitle={event.title} />
                     </div>
                   </td>
                 </tr>

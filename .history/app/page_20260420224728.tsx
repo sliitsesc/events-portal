@@ -10,7 +10,7 @@ type WeekEvent = {
   slug: string;
   title: string;
   start_at: string;
-  type: "onsite" | "virtual" | "industry_visit";
+  type: "onsite" | "virtual" ;
   location: string | null;
   flyer_image_url: string | null;
 };

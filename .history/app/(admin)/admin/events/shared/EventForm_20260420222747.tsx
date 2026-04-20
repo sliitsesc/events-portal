@@ -196,7 +196,7 @@ export function EventForm({ initialEvent }: EventFormProps) {
               required={type === "industry_visit"}
             />
             <p className="text-xs text-orange-700/80">
-              Required for industry visits to prevent overbooking the seat.
+              Required for industry visits to prevent overbooking the bus.
             </p>
           </div>
         )}

@@ -147,39 +147,3 @@ export async function upsertEventOnServer(input: UpsertEventInput) {
 
   return { ok: true as const, id: created.id };
 }
-
-export async function deleteEventOnServer(eventId: string) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) throw new Error("Not authenticated");
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("is_admin")
-    .eq("id", user.id)
-    .single();
-
-  if (!profile?.is_admin) throw new Error("Not authorized");
-
-  const { data: existingEvent } = await supabase
-    .from("events")
-    .select("id, title")
-    .eq("id", eventId)
-    .single();
-
-  const { error } = await supabase.from("events").delete().eq("id", eventId);
-
-  if (error) throw new Error(error.message);
-
-  await writeAdminAuditLog({
-    action: "EVENT_DELETED",
-    targetType: "event",
-    targetId: eventId,
-    details: {
-      event_title: existingEvent?.title,
-    }
-  });
-
-  revalidatePath("/admin/events");
-}

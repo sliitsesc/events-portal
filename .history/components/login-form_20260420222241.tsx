@@ -70,7 +70,7 @@ export function LoginForm({
     "Instant ticket and QR access after sign-in",
   ];
 
-
+  
 
   return (
     <div

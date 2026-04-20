@@ -13,7 +13,7 @@ type EditableEvent = {
   slug: string;
   title: string;
   description: string;
-  type: "onsite" | "virtual" | "industry_visit";
+  type: "onsite" | "virtual";
   location: string | null;
   meeting_url: string | null;
   start_at: string;
@@ -75,39 +75,27 @@ export function EventForm({ initialEvent }: EventFormProps) {
           slug,
           title,
           description,
-          type, // This tells the database what kind of event it is
+          type,
           location: type === "onsite" ? location || null : null,
           meeting_url: type === "virtual" ? meetingUrl || null : null,
           start_at: startAt ? new Date(startAt).toISOString() : null,
           end_at: endAt ? new Date(endAt).toISOString() : null,
-
-          // THE FIX: If it's a bus trip, convert to a number. Otherwise, it is null unless specified.
           capacity: capacity ? parseInt(capacity, 10) : null,
-
           status,
           flyer_image_url: flyerUrl || null,
           color_code: colorCode || null,
         };
 
-        // 1. Basic Validation
         if (!payload.title || !payload.description || !payload.start_at) {
           setError("Title, description and start time are required.");
           return;
         }
 
-        // 2. NEW SECURITY CHECK: Enforce capacity for bus trips
-        if (type === "industry_visit" && payload.capacity <= 0) {
-          setError(
-            "A valid bus seat capacity is required for Industry Visits.",
-          );
-          return;
-        }
-
-        // 3. Save to Database
         await upsertEventOnServer({
           ...payload,
           id: initialEvent?.id,
-          // (Removed the duplicate start_at/end_at here since they are already in the payload)
+          start_at: payload.start_at,
+          end_at: payload.end_at,
         });
 
         router.push("/admin/events");
@@ -166,40 +154,20 @@ export function EventForm({ initialEvent }: EventFormProps) {
             className="flex w-full min-h-[120px] rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
           />
         </div>
+        {/* 1. Event Type Dropdown */}
         <div className="space-y-2">
           <label className="block text-sm font-medium">Type</label>
           <select
             title="Event type"
             className="block w-full rounded-md border bg-background px-3 py-2 text-sm"
             value={type}
-            onChange={(e) =>
-              setType(e.target.value as "onsite" | "virtual" | "industry_visit")
-            }
+            onChange={(e) => setType(e.target.value as "onsite" | "virtual" | "industry_visit")}
           >
             <option value="onsite">Onsite</option>
             <option value="virtual">Virtual</option>
             <option value="industry_visit">Industry Visit</option>
           </select>
         </div>
-        {type === "industry_visit" && (
-          <div className="space-y-2 mt-4 rounded-lg border border-orange-200 bg-orange-50/50 p-4">
-            <label className="block text-sm font-medium text-orange-800">
-              Seat Capacity
-            </label>
-            <input
-              type="number"
-              min="1"
-              value={capacity}
-              onChange={(e) => setCapacity(e.target.value)}
-              className="block w-full rounded-md border bg-background px-3 py-2 text-sm"
-              placeholder="e.g. 40"
-              required={type === "industry_visit"}
-            />
-            <p className="text-xs text-orange-700/80">
-              Required for industry visits to prevent overbooking the seat.
-            </p>
-          </div>
-        )}
         <div className="space-y-2">
           <label className="block text-sm font-medium">
             {type === "onsite" ? "Location" : "Meeting URL"}
@@ -234,17 +202,15 @@ export function EventForm({ initialEvent }: EventFormProps) {
             onChange={(e) => setEndAt(e.target.value)}
           />
         </div>
-        {type !== "industry_visit" && (
-          <div className="space-y-2">
-            <label className="block text-sm font-medium">Capacity</label>
-            <Input
-              type="number"
-              min={0}
-              value={capacity}
-              onChange={(e) => setCapacity(e.target.value)}
-            />
-          </div>
-        )}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium">Capacity</label>
+          <Input
+            type="number"
+            min={0}
+            value={capacity}
+            onChange={(e) => setCapacity(e.target.value)}
+          />
+        </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium">Status</label>
           <select

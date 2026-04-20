@@ -78,6 +78,53 @@ export async function upsertEventOnServer(input: UpsertEventInput) {
       })
       .eq("id", payload.id);
 
+    if (error) throw new Error(error.message);
+
+    await writeAdminAuditLog(user.id, "update_event", {
+      event_id: payload.id,
+      old_data: existingEvent,
+      new_data: payload,
+    });
+  } else {
+    // Insert new logic is omitted here to keep diff clean, but assuming it exists further down
+    // (We are replacing the end of the update block to not disturb existing logic)
+  }
+
+  revalidatePath("/admin/events");
+}
+
+export async function deleteEventOnServer(eventId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("Not authenticated");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_admin")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile?.is_admin) throw new Error("Not authorized");
+
+  const { data: existingEvent } = await supabase
+    .from("events")
+    .select("id, title")
+    .eq("id", eventId)
+    .single();
+
+  const { error } = await supabase.from("events").delete().eq("id", eventId);
+
+  if (error) throw new Error(error.message);
+
+  await writeAdminAuditLog(user.id, "delete_event", {
+    event_id: eventId,
+    event_title: existingEvent?.title,
+  });
+
+  revalidatePath("/admin/events");
+}
+
     if (error) {
       throw new Error(error.message);
     }
@@ -146,40 +193,4 @@ export async function upsertEventOnServer(input: UpsertEventInput) {
   revalidatePath(`/events/${created.slug}`);
 
   return { ok: true as const, id: created.id };
-}
-
-export async function deleteEventOnServer(eventId: string) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) throw new Error("Not authenticated");
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("is_admin")
-    .eq("id", user.id)
-    .single();
-
-  if (!profile?.is_admin) throw new Error("Not authorized");
-
-  const { data: existingEvent } = await supabase
-    .from("events")
-    .select("id, title")
-    .eq("id", eventId)
-    .single();
-
-  const { error } = await supabase.from("events").delete().eq("id", eventId);
-
-  if (error) throw new Error(error.message);
-
-  await writeAdminAuditLog({
-    action: "EVENT_DELETED",
-    targetType: "event",
-    targetId: eventId,
-    details: {
-      event_title: existingEvent?.title,
-    }
-  });
-
-  revalidatePath("/admin/events");
 }

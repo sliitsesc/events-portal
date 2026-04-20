@@ -13,7 +13,7 @@ type EditableEvent = {
   slug: string;
   title: string;
   description: string;
-  type: "onsite" | "virtual" | "industry_visit";
+  type: "onsite" | "virtual";
   location: string | null;
   meeting_url: string | null;
   start_at: string;
@@ -81,8 +81,9 @@ export function EventForm({ initialEvent }: EventFormProps) {
           start_at: startAt ? new Date(startAt).toISOString() : null,
           end_at: endAt ? new Date(endAt).toISOString() : null,
 
-          // THE FIX: If it's a bus trip, convert to a number. Otherwise, it is null unless specified.
-          capacity: capacity ? parseInt(capacity, 10) : null,
+          // THE FIX: If it's a bus trip, convert to a number. Otherwise, it is 0.
+          capacity:
+            type === "industry_visit" && capacity ? parseInt(capacity, 10) : 0,
 
           status,
           flyer_image_url: flyerUrl || null,
@@ -184,7 +185,7 @@ export function EventForm({ initialEvent }: EventFormProps) {
         {type === "industry_visit" && (
           <div className="space-y-2 mt-4 rounded-lg border border-orange-200 bg-orange-50/50 p-4">
             <label className="block text-sm font-medium text-orange-800">
-              Seat Capacity
+              Bus Seat Capacity
             </label>
             <input
               type="number"
@@ -196,7 +197,7 @@ export function EventForm({ initialEvent }: EventFormProps) {
               required={type === "industry_visit"}
             />
             <p className="text-xs text-orange-700/80">
-              Required for industry visits to prevent overbooking the seat.
+              Required for industry visits to prevent overbooking the bus.
             </p>
           </div>
         )}
@@ -234,17 +235,15 @@ export function EventForm({ initialEvent }: EventFormProps) {
             onChange={(e) => setEndAt(e.target.value)}
           />
         </div>
-        {type !== "industry_visit" && (
-          <div className="space-y-2">
-            <label className="block text-sm font-medium">Capacity</label>
-            <Input
-              type="number"
-              min={0}
-              value={capacity}
-              onChange={(e) => setCapacity(e.target.value)}
-            />
-          </div>
-        )}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium">Capacity</label>
+          <Input
+            type="number"
+            min={0}
+            value={capacity}
+            onChange={(e) => setCapacity(e.target.value)}
+          />
+        </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium">Status</label>
           <select

@@ -70,7 +70,22 @@ export function LoginForm({
     "Instant ticket and QR access after sign-in",
   ];
 
+  const handleGoogleLogin = async () => {
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    );
 
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        // THIS IS THE FIX:
+        // If you click this on localhost, it sends you back to localhost.
+        // If you click it on Netlify, it sends you back to Netlify.
+        redirectTo: `${location.origin}/auth/callback`,
+      },
+    });
+  };
 
   return (
     <div

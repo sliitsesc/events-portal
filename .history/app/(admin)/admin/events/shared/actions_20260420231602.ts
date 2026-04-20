@@ -183,3 +183,73 @@ export async function deleteEventOnServer(eventId: string) {
 
   revalidatePath("/admin/events");
 }
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    await writeAdminAuditLog({
+      action: "EVENT_UPDATED",
+      targetType: "event",
+      targetId: payload.id,
+      details: {
+        before: existingEvent ?? null,
+        after: {
+          id: payload.id,
+          slug: payload.slug,
+          title: payload.title,
+          status: payload.status,
+          type: payload.type,
+        },
+      },
+    });
+
+    revalidatePath("/admin/events");
+    revalidatePath("/events");
+    revalidatePath(`/events/${payload.slug}`);
+
+    return { ok: true as const, id: payload.id };
+  }
+
+  const { data: created, error } = await supabase
+    .from("events")
+    .insert({
+      slug: payload.slug,
+      title: payload.title,
+      description: payload.description,
+      type: payload.type,
+      location: payload.type === "onsite" ? payload.location : null,
+      meeting_url: payload.type === "virtual" ? payload.meeting_url : null,
+      start_at: payload.start_at,
+      end_at: payload.end_at,
+      capacity: payload.capacity,
+      status: payload.status,
+      flyer_image_url: payload.flyer_image_url,
+      color_code: payload.color_code,
+      created_by: user.id,
+    })
+    .select("id, slug")
+    .single();
+
+  if (error || !created) {
+    throw new Error(error?.message ?? "Failed to create event");
+  }
+
+  await writeAdminAuditLog({
+    action: "EVENT_CREATED",
+    targetType: "event",
+    targetId: created.id,
+    details: {
+      slug: created.slug,
+      title: payload.title,
+      status: payload.status,
+      type: payload.type,
+    },
+  });
+
+  revalidatePath("/admin/events");
+  revalidatePath("/events");
+  revalidatePath(`/events/${created.slug}`);
+
+  return { ok: true as const, id: created.id };
+}

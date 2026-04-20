@@ -10,7 +10,52 @@ type WeekEvent = {
   slug: string;
   title: string;
   start_at: string;
-  type: "onsite" | "virtual" | "industry_visit";
+  type: "onsite" | "virtual" return (
+  <main className="flex flex-col gap-12 pb-20">
+    {/* Your Hero Section... */}
+
+    {/* 🔥 NEW: Exclusive Industry Visits Section */}
+    {industryVisits.length > 0 && (
+      <section className="bg-orange-50/50 border-y border-orange-100 py-12">
+        <div className="container mx-auto px-4">
+          <div className="mb-6 flex items-center gap-2">
+            <h2 className="text-2xl font-bold tracking-tight text-orange-900">
+              🚌 Exclusive Industry Visits
+            </h2>
+            <span className="bg-orange-200 text-orange-800 text-xs font-bold px-2 py-1 rounded-full">
+              Limited Seats
+            </span>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {industryVisits.map((visit) => (
+               // Render your existing EventCard component here!
+               // (Pass the 'visit' data into it just like normal)
+               <EventCard key={visit.id} event={visit} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    {/* 🗓️ Regular Campus Events Section */}
+    <section className="container mx-auto px-4">
+      <h2 className="text-2xl font-bold tracking-tight mb-6">
+        Upcoming Campus Events
+      </h2>
+      
+      {regularEvents.length === 0 ? (
+        <p className="text-muted-foreground">No upcoming events right now.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {regularEvents.map((event) => (
+             <EventCard key={event.id} event={event} />
+          ))}
+        </div>
+      )}
+    </section>
+  </main>
+);;
   location: string | null;
   flyer_image_url: string | null;
 };

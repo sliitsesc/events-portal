@@ -8,7 +8,7 @@ type Event = {
   id: string;
   slug: string;
   title: string;
-  type: "onsite" | "virtual" | "industry_visit";
+  type: "onsite" | "virtual";
   start_at: string;
   end_at: string;
   color_code: string | null;
@@ -76,73 +76,66 @@ async function EventsList() {
   const regularEvents = events.filter((event) => event.type !== "industry_visit");
   const industryVisits = events.filter((event) => event.type === "industry_visit");
 
-  const renderEvent = (event: Event) => {
-    const accentColor =
-      event.color_code && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(event.color_code)
-        ? event.color_code
-        : "#4f46e5";
-
-    return (
-      <li key={event.id}>
-        <Link
-          href={`/events/${event.slug}`}
-          className="group block overflow-hidden rounded-lg border bg-card hover:shadow-md transition-shadow"
-        >
-          <div className="h-1 w-full" style={{ backgroundColor: accentColor }} />
-          {event.flyer_image_url && (
-            <div className="aspect-[16/9] w-full overflow-hidden bg-muted">
-              <img
-                src={event.flyer_image_url}
-                alt={event.title}
-                className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-[1.02]"
-              />
-            </div>
-          )}
-          <div className="p-4">
-            <h3 className="text-lg font-semibold">{event.title}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {formatDateRange(event.start_at, event.end_at)}
-            </p>
-            <p className="mt-1 text-sm font-medium">
-              {event.type === "virtual" ? "Online" : event.location || "Onsite"}
-            </p>
-          </div>
-        </Link>
-      </li>
-    );
-  };
-
   return (
-    <div className="flex flex-col gap-12 pb-10">
-      {industryVisits.length > 0 && (
-        <section className="rounded-2xl border border-orange-200 bg-orange-50/50 p-6 md:p-8">
-          <div className="mb-6 flex flex-wrap items-center gap-3">
-            <h2 className="text-2xl font-bold tracking-tight text-orange-900">
-              🚌 Exclusive Industry Visits
-            </h2>
-            <span className="rounded-full bg-orange-200 px-3 py-1 text-xs font-bold text-orange-800">
-              Limited Seats
-            </span>
-          </div>
-          <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {industryVisits.map(renderEvent)}
-          </ul>
-        </section>
-      )}
+    <ul className="grid gap-4 md:grid-cols-2">
+      {events.map((event) => {
+        const accentColor =
+          event.color_code &&
+          /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(event.color_code)
+            ? event.color_code
+            : "#4f46e5";
 
-      <section>
-        <h2 className="mb-6 text-2xl font-bold tracking-tight">
-          Upcoming Campus Events
-        </h2>
-        {regularEvents.length === 0 ? (
-          <p className="text-muted-foreground">No regular campus events right now.</p>
-        ) : (
-          <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {regularEvents.map(renderEvent)}
-          </ul>
-        )}
-      </section>
-    </div>
+        return (
+          <li key={event.id}>
+            <Link
+              href={`/events/${event.slug}`}
+              className="group block overflow-hidden rounded-lg border bg-card hover:shadow-md transition-shadow"
+            >
+              <div
+                className="h-1 w-full"
+                style={{ backgroundColor: accentColor }}
+              />
+              {event.flyer_image_url && (
+                <div className="aspect-[16/9] w-full overflow-hidden bg-muted">
+                  <img
+                    src={event.flyer_image_url}
+                    alt={event.title}
+                    className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-[1.02]"
+                    loading="lazy"
+                  />
+                </div>
+              )}
+              <div className="flex flex-col gap-2 p-4">
+                <div className="flex items-start justify-between gap-2">
+                  <h2 className="text-base font-semibold line-clamp-2">
+                    {event.title}
+                  </h2>
+                  <span
+                    className={cn(
+                      "inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium capitalize",
+                      event.type === "virtual"
+                        ? "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-950/40 dark:text-blue-200 dark:border-blue-900"
+                        : "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-900",
+                    )}
+                  >
+                    {event.type}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {formatDateRange(event.start_at, event.end_at)}
+                </p>
+                {event.location && (
+                  <p className="text-xs text-muted-foreground line-clamp-1">
+                    {event.type === "virtual" ? "Online · " : "Onsite · "}
+                    {event.location}
+                  </p>
+                )}
+              </div>
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
