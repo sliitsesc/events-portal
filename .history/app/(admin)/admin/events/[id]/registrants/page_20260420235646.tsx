@@ -168,15 +168,12 @@ export default async function EventRegistrantsPage(props: PageProps) {
       attended: row.attended,
       full_name: safeName,
       email: safeEmail,
-      nic_number: profile?.nic_number ?? null,
-      phone_number: profile?.phone_number ?? null,
     };
   });
 
   return (
     <LiveTable
       eventId={event.id}
-      eventType={event.type}
       eventTitle={event.title}
       eventStartAt={event.start_at}
       initialRows={initialRows}

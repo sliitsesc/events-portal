@@ -169,55 +169,42 @@ export function LiveTable({
           </p>
         </div>
 
-        <div className="flex flex-col sm:items-end gap-3 w-full sm:w-auto">
+        <div className="flex w-full gap-2 sm:w-auto">
+          <Card className="w-full sm:w-fit sm:min-w-[150px]">
+            <CardContent className="p-3">
+              <p className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
+                Registrant Count
+              </p>
+              <p className="mt-1 text-2xl font-bold leading-none">
+                {registrantCount}
+              </p>
+            </CardContent>
+          </Card>
+          <div className="flex flex-col sm:items-end gap-3 w-full sm:w-auto">
           {/* 🔥 NEW EXPORT BUTTON */}
           <button
             onClick={handleExportCSV}
             disabled={rows.length === 0}
             className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90 disabled:opacity-50 transition-colors"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="mr-2"
-            >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" x2="12" y1="15" y2="3" />
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" x2="12" y1="15" y2="3"/>
             </svg>
             Export Manifest (CSV)
           </button>
 
-          <div className="flex w-full gap-2 sm:w-auto">
-            <Card className="w-full sm:w-fit sm:min-w-[150px]">
-              <CardContent className="p-3">
-                <p className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
-                  Registrant Count
-                </p>
-                <p className="mt-1 text-2xl font-bold leading-none">
-                  {registrantCount}
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="w-full sm:w-fit sm:min-w-[150px]">
-              <CardContent className="p-3">
-                <p className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
-                  Attended Count
-                </p>
-                <p className="mt-1 text-2xl font-bold leading-none">
-                  {attendedCount}
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+          <Card className="w-full sm:w-fit sm:min-w-[150px]">
+            <CardContent className="p-3">
+              <p className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
+                Attended Count
+              </p>
+              <p className="mt-1 text-2xl font-bold leading-none">
+                {attendedCount}
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </div>
 

@@ -196,7 +196,8 @@ export default async function MyEventsPage() {
                               Bus Boarding Pass
                             </h3>
                             <p className="text-center text-xs text-orange-800 dark:text-orange-400 mt-1 max-w-[220px]">
-                              Bring your physical <strong>NIC</strong>.
+                              No QR code needed. Bring your physical{" "}
+                              <strong>NIC</strong>.
                             </p>
                           </div>
                         ) : (

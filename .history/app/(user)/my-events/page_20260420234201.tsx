@@ -164,9 +164,7 @@ export default async function MyEventsPage() {
                                 : "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-900",
                           )}
                         >
-                          {event.type === "industry_visit"
-                            ? "industry visit"
-                            : event.type}
+                          {event.type === "industry_visit" ? "industry visit" : event.type}
                         </span>
                       </div>
                       <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
@@ -192,11 +190,9 @@ export default async function MyEventsPage() {
                         {event.type === "industry_visit" ? (
                           <div className="flex flex-col items-center justify-center p-4 bg-orange-50 border-2 border-dashed border-orange-200 rounded-lg dark:bg-orange-950/20 dark:border-orange-900/50">
                             <span className="text-3xl mb-1">🚌</span>
-                            <h3 className="font-bold text-orange-900 dark:text-orange-500 text-sm md:text-base">
-                              Bus Boarding Pass
-                            </h3>
+                            <h3 className="font-bold text-orange-900 dark:text-orange-500 text-sm md:text-base">Bus Boarding Pass</h3>
                             <p className="text-center text-xs text-orange-800 dark:text-orange-400 mt-1 max-w-[220px]">
-                              Bring your physical <strong>NIC</strong>.
+                              No QR code needed. Bring your physical <strong>NIC</strong>.
                             </p>
                           </div>
                         ) : (

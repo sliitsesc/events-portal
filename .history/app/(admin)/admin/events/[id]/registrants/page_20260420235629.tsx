@@ -111,8 +111,6 @@ export default async function EventRegistrantsPage(props: PageProps) {
               id: userId,
               email,
               full_name: fullName,
-              nic_number: null,
-              phone_number: null,
             };
           }),
         )
@@ -123,8 +121,6 @@ export default async function EventRegistrantsPage(props: PageProps) {
           id: string;
           email: string | null;
           full_name: string | null;
-          nic_number: string | null;
-          phone_number: string | null;
         } => profile !== null,
       );
 
@@ -145,8 +141,6 @@ export default async function EventRegistrantsPage(props: PageProps) {
             id: profile.id,
             email: profile.email,
             full_name: profile.full_name,
-            nic_number: profile.nic_number,
-            phone_number: profile.phone_number,
           });
         });
       }
@@ -168,15 +162,12 @@ export default async function EventRegistrantsPage(props: PageProps) {
       attended: row.attended,
       full_name: safeName,
       email: safeEmail,
-      nic_number: profile?.nic_number ?? null,
-      phone_number: profile?.phone_number ?? null,
     };
   });
 
   return (
     <LiveTable
       eventId={event.id}
-      eventType={event.type}
       eventTitle={event.title}
       eventStartAt={event.start_at}
       initialRows={initialRows}

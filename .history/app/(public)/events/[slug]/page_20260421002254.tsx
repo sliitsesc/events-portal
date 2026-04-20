@@ -84,21 +84,10 @@ export default async function EventDetailPage(props: PageProps) {
       .select("id, status")
       .eq("event_id", event.id)
       .eq("user_id", user.id)
-      .in("status", ["registered", "confirmed", "pending"])
+      .eq("status", "registered")
       .maybeSingle();
 
     initiallyRegistered = Boolean(registration);
-
-    // 2. NEW: Check if they have their security data filled out
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("nic_number, phone_number")
-      .eq("id", user.id)
-      .single();
-
-    if (profile?.nic_number && profile?.phone_number) {
-      hasSecurityData = true;
-    }
   }
 
   return (
@@ -182,12 +171,9 @@ export default async function EventDetailPage(props: PageProps) {
             <section className="rounded-lg border bg-muted/40 p-5 flex flex-col gap-2">
               <h2 className="font-semibold text-lg">Registration</h2>
               <EventRegistrationSection
-                eventId={event.id}                 
-                eventType={event.type}
                 slug={event.slug}
                 isLoggedIn={Boolean(user)}
                 initiallyRegistered={initiallyRegistered}
-                hasSecurityData={hasSecurityData}
               />
             </section>
           </aside>

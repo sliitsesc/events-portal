@@ -182,12 +182,11 @@ export default async function EventDetailPage(props: PageProps) {
             <section className="rounded-lg border bg-muted/40 p-5 flex flex-col gap-2">
               <h2 className="font-semibold text-lg">Registration</h2>
               <EventRegistrationSection
-                eventId={event.id}                 
+                eventId={event.id}                  {/* Added this */}
                 eventType={event.type}
                 slug={event.slug}
                 isLoggedIn={Boolean(user)}
                 initiallyRegistered={initiallyRegistered}
-                hasSecurityData={hasSecurityData}
               />
             </section>
           </aside>
