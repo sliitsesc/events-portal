@@ -25,24 +25,19 @@ export function EventRegistrationSection({
   initiallyRegistered,
   hasSecurityData: initiallyHasSecurityData,
 }: Props) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-
-  // App State
   const [registered, setRegistered] = useState(initiallyRegistered);
   const [hasSecurityData, setHasSecurityData] = useState(
     initiallyHasSecurityData,
   );
+  const [ticketCode, setTicketCode] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
-  // Modal State
   const [showModal, setShowModal] = useState(false);
   const [nicNumber, setNicNumber] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
 
-  // =======================================================================
-  // 1. STATE: User is NOT logged in
-  // =======================================================================
   if (!isLoggedIn) {
     return (
       <div className="flex flex-col gap-2">
@@ -62,9 +57,6 @@ export function EventRegistrationSection({
     );
   }
 
-  // =======================================================================
-  // 2. STATE: User is ALREADY registered
-  // =======================================================================
   if (registered) {
     return (
       <div className="flex flex-col gap-3 p-4 border rounded-lg bg-muted/20">
@@ -104,21 +96,18 @@ export function EventRegistrationSection({
     );
   }
 
-  // =======================================================================
-  // 3. LOGIC: Registration Handlers
-  // =======================================================================
   const handleRegisterClick = () => {
     if (eventType === "industry_visit" && !hasSecurityData) {
-      setShowModal(true); // Pop the security gate!
+      setShowModal(true);
     } else {
-      onRegister(); // Normal event, register instantly
+      onRegister();
     }
   };
 
   const onRegister = () => {
     setError(null);
     startTransition(async () => {
-      // Step A: If it's a bus trip and they are missing data, save it first.
+      // If industry visit and no security data, update profile first
       if (eventType === "industry_visit" && !hasSecurityData) {
         if (!nicNumber.trim() || !phoneNumber.trim()) {
           setError("NIC and Phone Number are required for this event.");
@@ -129,19 +118,20 @@ export function EventRegistrationSection({
         if (!updateResult.ok) {
           setError(
             updateResult.error === "UPDATE_FAILED"
-              ? "Failed to save security data. Please try again."
+              ? "Failed to save security data. Please check your inputs and try again."
               : (updateResult.error ?? "Authentication error."),
           );
           return;
         }
         setHasSecurityData(true);
-        setShowModal(false); // Close modal on success
+        setShowModal(false);
       }
 
-      // Step B: Actually register for the event
+      // Proceed with registration
       const result = await registerForEvent(slug);
 
       if (result.ok) {
+        setTicketCode(result.ticket.ticketCode);
         setRegistered(true);
         return;
       }
@@ -162,91 +152,67 @@ export function EventRegistrationSection({
     });
   };
 
-  // =======================================================================
-  // 4. STATE: Default Render (Register Button + Security Modal)
-  // =======================================================================
+  if (eventType === "industry_visit" && !hasSecurityData) {
+    return (
+      <div className="flex flex-col gap-4 rounded-lg border bg-orange-50/50 dark:bg-orange-950/20 p-4 border-orange-100 dark:border-orange-900/50">
+        <div className="flex flex-col gap-1">
+          <h3 className="font-semibold text-orange-900 dark:text-orange-500">
+            Security Verification Required
+          </h3>
+          <p className="text-xs sm:text-sm text-orange-800/80 dark:text-orange-400">
+            For access to the corporate premises during this industry visit, you
+            must provide your National Identity Card (NIC) and phone number
+            before registering.
+          </p>
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="nic">NIC Number</Label>
+          <Input
+            id="nic"
+            placeholder="e.g. 199912345678 or 991234567V"
+            value={nicNumber}
+            onChange={(e) => setNicNumber(e.target.value)}
+            disabled={isPending}
+          />
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="phone">Phone Number</Label>
+          <Input
+            id="phone"
+            type="tel"
+            placeholder="e.g. 071 234 5678"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            disabled={isPending}
+          />
+        </div>
+
+        <Button
+          onClick={onRegister}
+          disabled={isPending}
+          className="mt-2 w-full sm:w-auto self-start bg-orange-600 hover:bg-orange-700 text-white"
+        >
+          {isPending
+            ? "Validating & Securing Spot..."
+            : "Verify Identity & Register"}
+        </Button>
+
+        {error && <p className="text-xs text-red-500 font-medium">{error}</p>}
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4">
-      {/* The Main Registration Button */}
       <Button
-        onClick={handleRegisterClick}
+        onClick={onRegister}
         disabled={isPending}
         className="w-full sm:w-auto self-start"
       >
         {isPending ? "Processing Registration..." : "Register for Event"}
       </Button>
 
-      {/* Main Error Message */}
-      {error && !showModal && (
-        <p className="text-xs text-red-500 font-medium">{error}</p>
-      )}
-
-      {/* The Security Gate Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-xl bg-background p-6 shadow-xl border relative">
-            <div className="mb-5">
-              <h2 className="text-xl font-bold text-orange-600 dark:text-orange-500">
-                Security Verification Required
-              </h2>
-              <p className="text-sm text-muted-foreground mt-2">
-                For access to the corporate premises during this industry visit,
-                you must provide your National Identity Card (NIC) and phone
-                number before registering.
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="nic">NIC Number</Label>
-                <Input
-                  id="nic"
-                  placeholder="e.g. 199912345678 or 991234567V"
-                  value={nicNumber}
-                  onChange={(e) => setNicNumber(e.target.value)}
-                  disabled={isPending}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  placeholder="e.g. 071 234 5678"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  disabled={isPending}
-                />
-              </div>
-            </div>
-
-            {/* Modal Error Message */}
-            {error && (
-              <p className="mt-4 text-xs text-red-500 font-medium">{error}</p>
-            )}
-
-            <div className="mt-6 flex justify-end gap-3">
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  setShowModal(false);
-                  setError(null);
-                }}
-                disabled={isPending}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={onRegister}
-                disabled={isPending}
-                className="bg-orange-600 hover:bg-orange-700 text-white"
-              >
-                {isPending ? "Validating..." : "Verify & Register"}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      {error && <p className="text-xs text-red-500 font-medium">{error}</p>}
     </div>
   );
 }

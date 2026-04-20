@@ -30,9 +30,7 @@ export function EventRegistrationSection({
 
   // App State
   const [registered, setRegistered] = useState(initiallyRegistered);
-  const [hasSecurityData, setHasSecurityData] = useState(
-    initiallyHasSecurityData,
-  );
+  const [hasSecurityData, setHasSecurityData] = useState(initiallyHasSecurityData);
   const [error, setError] = useState<string | null>(null);
 
   // Modal State
@@ -51,9 +49,7 @@ export function EventRegistrationSection({
         </p>
         <Button
           onClick={() =>
-            router.push(
-              `/auth/login?redirect=/events/${encodeURIComponent(slug)}`,
-            )
+            router.push(`/auth/login?redirect=/events/${encodeURIComponent(slug)}`)
           }
         >
           Login to register
@@ -88,8 +84,7 @@ export function EventRegistrationSection({
         </p>
         {eventType === "industry_visit" && (
           <p className="text-xs text-orange-700/80 dark:text-orange-400/80 mb-2">
-            Make sure to bring your physical National Identity Card (NIC) with
-            you.
+            Make sure to bring your physical National Identity Card (NIC) with you.
           </p>
         )}
         <Button
@@ -130,7 +125,7 @@ export function EventRegistrationSection({
           setError(
             updateResult.error === "UPDATE_FAILED"
               ? "Failed to save security data. Please try again."
-              : (updateResult.error ?? "Authentication error."),
+              : (updateResult.error ?? "Authentication error.")
           );
           return;
         }
@@ -191,8 +186,7 @@ export function EventRegistrationSection({
               </h2>
               <p className="text-sm text-muted-foreground mt-2">
                 For access to the corporate premises during this industry visit,
-                you must provide your National Identity Card (NIC) and phone
-                number before registering.
+                you must provide your National Identity Card (NIC) and phone number before registering.
               </p>
             </div>
 
