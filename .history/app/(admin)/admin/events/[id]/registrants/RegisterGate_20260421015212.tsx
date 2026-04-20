@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { registerWithSecurityData } from "./actions";
+import { registerWithSecurityData } from "../../../../../actions/registrations";
 // Import your standard registration action here as well
 // import { registerForEvent } from "@/app/actions/registrations";
 
