@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+// test the github conection
+
 export function SiteFooter() {
   const currentYear = new Date().getFullYear();
 
