@@ -100,6 +100,12 @@ export function CompleteProfileForm({
     e.preventDefault();
     setError(null);
 
+    const sliitIdRegex = /^(IT|BM|EN|SH)\d{8}$/i;
+    if (!sliitIdRegex.test(studentId.trim())) {
+      setError("Invalid SLIIT ID format. Example: IT21000000");
+      return;
+    }
+
     const parsed = completeProfileSchema.safeParse({
       student_id: studentId,
       phone_number: phoneNumber,

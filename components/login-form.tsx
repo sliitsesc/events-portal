@@ -36,26 +36,11 @@ export function LoginForm({
           ? requestedRedirect
           : "/";
 
-      // 1. Check if the URL contains the secret VIP flag (?vip=true)
-      const isVip = searchParams.get("vip") === "true";
-
-      // 2. Build the base options with your secure redirect
-      const authOptions: any = {
-        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(safeRedirect)}`,
-      };
-
-      // 3. THE BACKDOOR LOGIC:
-      // Only apply the SLIIT domain restriction if they are NOT a VIP.
-      if (!isVip) {
-        authOptions.queryParams = {
-          hd: "my.sliit.lk",
-        };
-      }
-
-      // 4. Send the dynamic options to Supabase
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: authOptions,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(safeRedirect)}`,
+        },
       });
 
       if (error) throw error;
@@ -77,7 +62,6 @@ export function LoginForm({
         : null);
 
   const highlights = [
-    "Verified @my.sliit.lk access only",
     "One-click registration for all SESC events",
     "Instant ticket and QR access after sign-in",
   ];
@@ -161,19 +145,23 @@ export function LoginForm({
                 </svg>
                 {isLoading
                   ? "Connecting to SLIIT..."
-                  : "Continue with SLIIT Email"}
+                  : "Continue with Google"}
               </Button>
+
+              <a
+                href="https://support.sliit.lk"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 block text-sm text-muted-foreground hover:underline"
+              >
+                Forgot your SLIIT email password? Reset it via IT Support.
+              </a>
 
               {resolvedError && (
                 <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300">
                   {resolvedError}
                 </p>
               )}
-
-              <p className="text-xs text-muted-foreground">
-                Only <span className="font-semibold">@my.sliit.lk</span> Google
-                accounts can sign in.
-              </p>
             </div>
           </CardContent>
         </Card>

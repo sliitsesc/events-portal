@@ -22,10 +22,6 @@ export async function GET(request: Request) {
       }
 
       const email = user.email?.trim().toLowerCase();
-      if (!email || !email.endsWith("@my.sliit.lk")) {
-        await supabase.auth.signOut();
-        return NextResponse.redirect(`${origin}/auth/login?error=AccessDenied`);
-      }
 
       const fullName =
         typeof user.user_metadata?.full_name === "string"
