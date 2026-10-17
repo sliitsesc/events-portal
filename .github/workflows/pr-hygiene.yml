@@ -1,0 +1,57 @@
+name: PR hygiene
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, labeled, unlabeled]
+    branches: [develop, main]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  checks:
+    name: Linked issue and forbidden files
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: PR closes an issue
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+        run: |
+          if [[ ",$LABELS," == *",no-issue,"* ]]; then
+            echo "Label 'no-issue' present, skipping."; exit 0
+          fi
+          if ! grep -Eiq '(close[sd]?|fix(e[sd])?|resolve[sd]?) +#[0-9]+' <<<"$PR_BODY"; then
+            echo "::error::PR description must contain 'Closes #<issue number>' (or add the 'no-issue' label for maintenance work)."
+            exit 1
+          fi
+
+      - name: No secrets or editor history committed
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          bad=$(git diff --name-only --diff-filter=AM "$BASE_SHA" "$HEAD_SHA" \
+            | grep -E '(^|/)(\.env($|\.)|\.history/|\.next/|node_modules/)' \
+            | grep -vE '\.env\.example$' || true)
+          if [[ -n "$bad" ]]; then
+            echo "::error::These files must not be committed:"
+            echo "$bad"
+            exit 1
+          fi
+
+      - name: Lockfile only changes with package.json
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          changed=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
+          if grep -qx 'package-lock.json' <<<"$changed" && ! grep -qx 'package.json' <<<"$changed"; then
+            echo "::warning::package-lock.json changed without package.json. Make sure this is intentional."
+          fi

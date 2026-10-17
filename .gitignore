@@ -45,3 +45,4 @@ next-env.d.ts
 # just simple ignore the .env file, but allow .env.example to be committed
 
 .history
+.history/

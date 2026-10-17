@@ -54,12 +54,12 @@ export async function writeAdminAuditLog(input: AdminAuditInput) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("is_admin")
+    .select("is_admin, is_volunteer")
     .eq("id", user.id)
     .single();
 
-  if (!profile?.is_admin) {
-    throw new Error("Audit failed: only admins can write audit records");
+  if (!profile?.is_admin && !profile?.is_volunteer) {
+    throw new Error("Audit failed: only admins or volunteers can write audit records");
   }
 
   const request = await getRequestMeta();

@@ -3,6 +3,10 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { DeleteEventButton } from "./shared/DeleteEventButton";
 
+type EventQueryRow = Omit<EventRow, "registrations_count"> & {
+  event_registrations: { id: string }[] | null;
+};
+
 type EventRow = {
   id: string;
   slug: string;
@@ -39,7 +43,7 @@ export default async function AdminEventsPage() {
   }
 
   const rows: EventRow[] =
-    data?.map((event: any) => ({
+    (data as EventQueryRow[] | null)?.map((event) => ({
       id: event.id,
       slug: event.slug,
       title: event.title,
