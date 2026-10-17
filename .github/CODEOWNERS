@@ -1,0 +1,9 @@
+# Review required from the Development Head for sensitive areas.
+# Replace @Sathufit with the team handle (for example @sliitsesc/maintainers) when one exists.
+*                          @Sathufit
+/supabase/                 @Sathufit
+/.github/                  @Sathufit
+/app/actions/              @Sathufit
+/app/utils/                @Sathufit
+/lib/supabase/             @Sathufit
+/proxy.ts                  @Sathufit

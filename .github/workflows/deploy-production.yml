@@ -1,0 +1,63 @@
+name: Deploy production
+
+# Deploys main to Vercel only after the same checks as CI pass.
+# One-time setup:
+#   1. Repo secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID
+#   2. Repo environment "production" with required reviewers
+#   3. In Vercel, turn off automatic production deploys from Git so that
+#      this workflow is the only path to production.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: placeholder-key
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npx tsc --noEmit
+      - run: npm run build
+
+  deploy:
+    name: Deploy to Vercel
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: production
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check deploy secrets
+        run: |
+          for v in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID; do
+            if [[ -z "${!v}" ]]; then echo "::error::Missing secret $v"; exit 1; fi
+          done
+      - run: npx --yes vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
+      - run: npx --yes vercel@latest build --prod --token="$VERCEL_TOKEN"
+      - run: npx --yes vercel@latest deploy --prebuilt --prod --token="$VERCEL_TOKEN"
