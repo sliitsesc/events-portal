@@ -9,7 +9,7 @@ SESC Events Portal is a Next.js + Supabase web app for publishing student events
 - My Events dashboard with generated QR ticket previews
 - Admin panel for creating/editing events
 - Admin registrant list with attendance toggling
-- Admin QR check-in page route (scanner UI placeholder currently)
+- QR check-in for admins and volunteers (camera scanner)
 - Supabase Auth with server-side session refresh through proxy
 - Profile completion flow for non-admin users
 - Optional registration confirmation emails via Resend
@@ -40,13 +40,14 @@ SESC Events Portal is a Next.js + Supabase web app for publishing student events
 - `/admin/events/new` create event
 - `/admin/events/[id]/edit` edit event
 - `/admin/events/[id]/registrants` registrant management + attendance toggle
-- `/admin/events/[id]/scan` QR check-in page (placeholder)
+- `/admin/events/[id]/scan` QR check-in page
+- `/admin/audit-logs` audit trail
 
 ## Authentication And Access Rules
 
 - Supabase Auth session is refreshed in proxy middleware.
 - Non-authenticated users are redirected from protected routes to `/auth/login`.
-- OAuth callback currently allows only emails ending with `@my.sliit.lk`.
+- Google login is open to any account (domain restriction was removed in `9886e58`).
 - Non-admin users without a profile `student_id` are redirected to `/complete-profile`.
 - Admin routes validate `profiles.is_admin` before rendering.
 
@@ -179,9 +180,8 @@ npm run dev
 
 ## Current Limitations / Next Work
 
-- Admin QR scanner page exists, but camera/scanner logic is not implemented yet.
-- Database schema is documented here but not versioned as SQL migrations in the repo.
-- Audit logs utility exists, but no dedicated admin UI page is currently wired.
+- Database schema is documented here but only partly versioned in `supabase/sql/`. Apply the files there in date order.
+- Feature work is tracked as GitHub issues #20-#29. See `CONTRIBUTING.md` and `docs/CONTRIBUTIONS.md`.
 
 ## Project Structure (High Level)
 
