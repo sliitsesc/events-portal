@@ -12,19 +12,29 @@ if [[ "${1:-}" == "--maintainers" ]]; then MAINTAINERS="${2:-}"; fi
 # Files that don't count as authored work.
 NOISE='^(package-lock\.json|\.history/|\.next/|node_modules/)'
 
+SCOPE_FILE="$(dirname "$0")/../.github/issue-scope.json"
+
 gh pr list --state all --limit 25 --json \
   number,title,author,state,createdAt,mergedAt,commits,reviews,files,closingIssuesReferences,additions,deletions \
-| jq -r --arg noise "$NOISE" --arg maint "$MAINTAINERS" '
+| jq -r --arg noise "$NOISE" --arg maint "$MAINTAINERS" --slurpfile scope "$SCOPE_FILE" '
   def real_files: [.files[] | select(.path | test($noise) | not)];
   def real_lines: (real_files | map(.additions + .deletions) | add // 0);
   def approvals:  [.reviews[] | select(.state == "APPROVED" and .author.login != null)] | length;
   def changes_req:[.reviews[] | select(.state == "CHANGES_REQUESTED")] | length;
+  def out_of_scope:
+    ((.closingIssuesReferences[0].number // null) | if . == null then null else tostring end) as $n
+    | if $n == null or ($scope[0][$n] == null) then false
+      else ($scope[0][$n]) as $prefixes
+        | any(real_files[]; . as $f | ($prefixes | any(. as $p | $f.path | startswith($p))) | not)
+      end;
   def flags:
     [ (if (.closingIssuesReferences | length) == 0 then "no-linked-issue" else empty end),
       (if real_lines < 5 then "trivial-diff" else empty end),
       (if (.commits | length) == 1 and real_lines > 300 then "single-large-commit" else empty end),
       (if (real_files | length) == 0 then "noise-only" else empty end),
       (if approvals == 0 and .state == "MERGED" then "merged-without-approval" else empty end),
+      (if out_of_scope then "out-of-scope" else empty end),
+      (if (.files | map(select(.path == "package.json")) | length) > 0 then "touches-package.json" else empty end),
       (if (.files | map(select(.path | startswith(".history/"))) | length) > 0 then "touches-.history" else empty end)
     ] | join(", ");
 

@@ -1,0 +1,13 @@
+{
+  "_comment": "Path prefixes each training issue is expected to touch. Files outside these are flagged for the reviewer (not blocked). Update when an issue's scope changes.",
+  "20": ["app/(public)/events/[slug]/", "components/"],
+  "21": ["app/(public)/events/", "components/"],
+  "22": ["app/(public)/events/", "components/"],
+  "23": ["app/(admin)/admin/events/page.tsx", "components/"],
+  "24": ["app/(volunteer)/", "supabase/sql/", "components/"],
+  "25": ["app/(user)/my-events/", "app/(public)/events/", "supabase/sql/", "components/"],
+  "26": ["app/(public)/events/[slug]/", "components/"],
+  "27": ["app/(user)/", "components/"],
+  "28": ["app/(user)/", "supabase/sql/", "components/"],
+  "29": ["app/(volunteer)/", "components/"]
+}
