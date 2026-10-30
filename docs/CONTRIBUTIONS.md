@@ -53,7 +53,11 @@ counted. Flags to look at:
 | noise-only | Only lockfile/history/generated files changed |
 | single-large-commit | One commit with 300+ lines, often pasted in bulk |
 | merged-without-approval | Merged with no approving review |
+| out-of-scope | Changed files outside the linked issue's paths (see `.github/issue-scope.json`) |
+| touches-package.json | Dependencies may have been added; check the PR |
 | touches-.history | Committed editor-history files |
+
+The same checks (large single commit, new dependencies, out-of-scope files) run on every PR as non-blocking warnings in the "PR hygiene" workflow summary, so the reviewer sees them before the walkthrough.
 
 ## 4. Integrity checks before approving
 
