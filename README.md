@@ -4,15 +4,15 @@ The SESC Events Portal is a web app for discovering SESC-SLIIT events, registeri
 
 ## Features
 
-- Public home page with upcoming events and a published events catalogue.
-- Event detail pages for onsite, virtual, and industry visit events.
-- Authenticated event registration, capacity checks, duplicate-registration handling, and optional confirmation email through Resend.
-- A personal **My Events** page with ticket codes and QR codes.
-- Admin tools to create, edit, publish, archive, and delete events; review registrants; export a CSV manifest; and mark attendance.
-- Camera-based QR check-in for onsite events. The scanner validates the ticket against the selected event and prevents repeat check-ins.
-- A volunteer dashboard that lists today's published onsite events. Its scanner links currently point to a route that is not present in this repository; the working scanner page is under the admin route.
-- Audit-log page and audit records for selected administrative and ticket-scanning actions.
-- Supabase Auth with server-rendered session handling, profile completion, and light/dark theme support.
+- Public event discovery and event detail pages
+- Registration flow with capacity checks
+- My Events dashboard with generated QR ticket previews
+- Admin panel for creating/editing events
+- Admin registrant list with attendance toggling
+- QR check-in for admins and volunteers (camera scanner)
+- Supabase Auth with server-side session refresh through proxy
+- Profile completion flow for non-admin users
+- Optional registration confirmation emails via Resend
 
 ## Technology
 
@@ -30,13 +30,24 @@ The SESC Events Portal is a web app for discovering SESC-SLIIT events, registeri
 
 ## Run locally
 
-1. Install dependencies:
+### Admin Routes
+
+- `/admin/events` event list
+- `/admin/events/new` create event
+- `/admin/events/[id]/edit` edit event
+- `/admin/events/[id]/registrants` registrant management + attendance toggle
+- `/admin/events/[id]/scan` QR check-in page
+- `/admin/audit-logs` audit trail
 
    ```bash
    npm install
    ```
 
-2. Create `.env.local` in the project root and set the required Supabase values:
+- Supabase Auth session is refreshed in proxy middleware.
+- Non-authenticated users are redirected from protected routes to `/auth/login`.
+- Google login is open to any account (domain restriction was removed in `9886e58`).
+- Non-admin users without a profile `student_id` are redirected to `/complete-profile`.
+- Admin routes validate `profiles.is_admin` before rendering.
 
    ```env
    NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
@@ -169,7 +180,21 @@ lib/              Ticket QR, email, and UI utilities
 supabase/sql/     Incremental SQL changes (not a full schema)
 ```
 
-## Implementation notes
+4. Open http://localhost:3000
+
+## Scripts
+
+- `npm run dev` start dev server
+- `npm run build` production build
+- `npm run start` run built app
+- `npm run lint` run ESLint
+
+## Current Limitations / Next Work
+
+- Database schema is documented here but only partly versioned in `supabase/sql/`. Apply the files there in date order.
+- Feature work is tracked as GitHub issues #20-#29. See `CONTRIBUTING.md` and `docs/CONTRIBUTIONS.md`.
+
+## Project Structure (High Level)
 
 - Ticket QR payloads contain a version, registration ID, event ID, user ID, and issue timestamp. Check-in validates the event and registration, requires a `registered` status, and rejects tickets already marked attended.
 - The QR scanner uses the device's environment-facing camera where available. Browsers require HTTPS or `localhost` for camera access.

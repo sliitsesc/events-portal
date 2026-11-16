@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { createClient } from "@/lib/supabase/server";
-import { cn } from "@/lib/utils";
 
 type Event = {
   id: string;

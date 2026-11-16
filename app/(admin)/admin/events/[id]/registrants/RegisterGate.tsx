@@ -40,7 +40,7 @@ export function RegisterGate({ eventId, eventType, hasSecurityData }: Props) {
       try {
         await registerWithSecurityData(eventId, nic, phone);
         setShowModal(false);
-      } catch (err) {
+      } catch {
         setError("Something went wrong. Please try again.");
       }
     });

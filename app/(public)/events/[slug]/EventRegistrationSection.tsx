@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 type Props = {
-  eventId: string;
   eventType: string;
   slug: string;
   isLoggedIn: boolean;
@@ -18,7 +17,6 @@ type Props = {
 };
 
 export function EventRegistrationSection({
-  eventId,
   eventType,
   slug,
   isLoggedIn,

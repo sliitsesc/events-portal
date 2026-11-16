@@ -1,7 +1,16 @@
 "use server";
 
-import { writeAdminAuditLog } from "@/app/utils/audit";
+import { writeAdminAuditLog as writeAuditLog } from "@/app/utils/audit";
 import { createClient } from "@/lib/supabase/server";
+
+// A failed audit write must not change the outcome of a scan.
+async function writeAdminAuditLog(input: Parameters<typeof writeAuditLog>[0]) {
+  try {
+    await writeAuditLog(input);
+  } catch (error) {
+    console.error("Scan audit log failed", error);
+  }
+}
 
 export async function processScan(eventId: string, registrationId: string) {
   const supabase = await createClient();
@@ -69,10 +78,13 @@ export async function processScan(eventId: string, registrationId: string) {
   }
 
   // 2. Mark as attended
-  const { error: updateError } = await supabase
+  // Conditional on attended = false so concurrent scans of one ticket cannot both succeed.
+  const { data: updated, error: updateError } = await supabase
     .from("event_registrations")
     .update({ attended: true })
-    .eq("id", registrationId);
+    .eq("id", registrationId)
+    .eq("attended", false)
+    .select("id");
 
   if (updateError) {
     await writeAdminAuditLog({
@@ -83,6 +95,10 @@ export async function processScan(eventId: string, registrationId: string) {
     });
 
     return { success: false, message: "Database error during check-in." };
+  }
+
+  if (!updated || updated.length === 0) {
+    return { success: false, message: "This ticket is already checked in." };
   }
 
   await writeAdminAuditLog({

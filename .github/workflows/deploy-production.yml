@@ -1,0 +1,66 @@
+name: Deploy production
+
+# Deploys main to Netlify only after the same checks as CI pass.
+# One-time setup:
+#   1. Repo secrets: NETLIFY_AUTH_TOKEN (personal access token) and NETLIFY_SITE_ID
+#   2. Repo environment "production" with required reviewers
+#   3. In Netlify, stop auto-publishing production from Git (Site configuration >
+#      Build & deploy > Continuous deployment > "Stop builds") so this workflow is
+#      the only path to production. Deploy previews for PRs can stay on.
+#   4. Build-time env vars (NEXT_PUBLIC_SUPABASE_URL, etc.) stay in the Netlify site settings.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: placeholder-key
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npx tsc --noEmit
+      - run: npm run build
+
+  deploy:
+    name: Deploy to Netlify
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+    env:
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Check deploy secrets
+        run: |
+          for v in NETLIFY_AUTH_TOKEN NETLIFY_SITE_ID; do
+            if [[ -z "${!v}" ]]; then echo "::error::Missing secret $v"; exit 1; fi
+          done
+      # --build pulls the site's env vars from Netlify and builds with its Next.js runtime.
+      - name: Build and deploy
+        run: npx --yes netlify-cli@latest deploy --build --prod --site "$NETLIFY_SITE_ID" --auth "$NETLIFY_AUTH_TOKEN"
