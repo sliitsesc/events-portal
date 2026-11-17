@@ -116,7 +116,9 @@ export default async function EventRegistrantsPage(props: PageProps) {
             };
           }),
         )
-      ).filter((profile: unknown): profile is ProfileRow => profile !== null);
+      ).filter(
+        (profile): profile is NonNullable<typeof profile> => profile !== null,
+      );
 
       if (recoveredProfiles.length > 0) {
         const { error: upsertRecoveredError } = await adminSupabase
