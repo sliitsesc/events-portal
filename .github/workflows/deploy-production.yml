@@ -63,4 +63,4 @@ jobs:
           done
       # --build pulls the site's env vars from Netlify and builds with its Next.js runtime.
       - name: Build and deploy
-        run: npx --yes netlify-cli@latest deploy --build --prod --site "$NETLIFY_SITE_ID" --auth "$NETLIFY_AUTH_TOKEN"
+        run: npx --yes netlify-cli@27.20.0 deploy --build --prod --site "$NETLIFY_SITE_ID" --auth "$NETLIFY_AUTH_TOKEN"

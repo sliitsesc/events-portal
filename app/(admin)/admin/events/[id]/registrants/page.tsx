@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth/require-role";
 import { LiveTable } from "./LiveTable";
 
 type RegistrantRow = {
@@ -28,7 +28,7 @@ type PageProps = {
 
 export default async function EventRegistrantsPage(props: PageProps) {
   const params = await props.params;
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
 
   const { data: event, error: eventError } = await supabase
     .from("events")
@@ -116,7 +116,9 @@ export default async function EventRegistrantsPage(props: PageProps) {
             };
           }),
         )
-      ).filter((profile: unknown): profile is ProfileRow => profile !== null);
+      ).filter(
+        (profile): profile is NonNullable<typeof profile> => profile !== null,
+      );
 
       if (recoveredProfiles.length > 0) {
         const { error: upsertRecoveredError } = await adminSupabase

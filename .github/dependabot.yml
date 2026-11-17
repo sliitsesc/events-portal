@@ -6,6 +6,11 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      # App is written for Tailwind 3 (@tailwind directives, tailwind.config.ts).
+      # Tailwind 4 needs a dedicated migration PR.
+      - dependency-name: tailwindcss
+        update-types: ["version-update:semver-major"]
     groups:
       minor-and-patch:
         update-types: [minor, patch]

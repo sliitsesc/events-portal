@@ -9,8 +9,9 @@ training issues.
    to you. One active issue per volunteer at a time.
 2. Fork or clone the repo, then branch from `develop`:
    `git checkout develop && git pull && git checkout -b feat/<issue-number>-short-name`
-3. Copy the env variables from the README into `.env.local` (ask the
-   Development Head for the shared dev Supabase project). Never commit `.env*`.
+3. `cp .env.example .env.local` and fill it with values from your **own**
+   Supabase project. Never ask for or share production or shared-project
+   keys, and never commit `.env*`. See `SECURITY.md`.
 4. `npm ci` then `npm run dev`.
 
 ## Before you open a PR
