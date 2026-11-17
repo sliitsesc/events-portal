@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import QRScanner from "@/components/QRScanner";
-import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth/require-role";
 
 type PageProps = {
   params: Promise<{
@@ -12,7 +12,7 @@ type PageProps = {
 
 export default async function EventScanPage(props: PageProps) {
   const params = await props.params;
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
 
   const { data: event, error } = await supabase
     .from("events")

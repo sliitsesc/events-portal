@@ -126,9 +126,11 @@ export function EventRegistrationSection({
         const updateResult = await updateSecurityData(nicNumber, phoneNumber);
         if (!updateResult.ok) {
           setError(
-            updateResult.error === "UPDATE_FAILED"
-              ? "Failed to save security data. Please try again."
-              : (updateResult.error ?? "Authentication error."),
+            updateResult.error === "INVALID_INPUT"
+              ? "Enter a valid NIC (e.g. 991234567V or 12 digits) and phone number."
+              : updateResult.error === "UPDATE_FAILED"
+                ? "Failed to save security data. Please try again."
+                : (updateResult.error ?? "Authentication error."),
           );
           return;
         }

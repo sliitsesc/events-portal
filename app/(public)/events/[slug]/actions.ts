@@ -1,5 +1,7 @@
 "use server";
 
+import { z } from "zod";
+
 import { createClient } from "@/lib/supabase/server";
 import { sendRegistrationEmail } from "@/lib/email";
 import { getTicketCode } from "@/lib/tickets";
@@ -15,7 +17,24 @@ type RegisterResult =
     }
   | { ok: false; error: "NOT_AUTHENTICATED" | "EVENT_NOT_AVAILABLE" | "EVENT_FULL" | "ALREADY_REGISTERED" | "UNKNOWN_ERROR" };
 
+const securityDataSchema = z.object({
+  // Old format 991234567V or new 12-digit format.
+  nicNumber: z
+    .string()
+    .trim()
+    .regex(/^(\d{9}[vVxX]|\d{12})$/, "Invalid NIC number"),
+  phoneNumber: z
+    .string()
+    .trim()
+    .regex(/^\+?[0-9 ]{9,15}$/, "Invalid phone number"),
+});
+
 export async function updateSecurityData(nicNumber: string, phoneNumber: string) {
+  const parsed = securityDataSchema.safeParse({ nicNumber, phoneNumber });
+  if (!parsed.success) {
+    return { ok: false, error: "INVALID_INPUT" };
+  }
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -26,8 +45,8 @@ export async function updateSecurityData(nicNumber: string, phoneNumber: string)
   const { error } = await supabase
     .from("profiles")
     .update({
-      nic_number: nicNumber,
-      phone_number: phoneNumber,
+      nic_number: parsed.data.nicNumber,
+      phone_number: parsed.data.phoneNumber,
     })
     .eq("id", user.id);
 
