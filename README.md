@@ -30,6 +30,8 @@ The SESC Events Portal is a web app for discovering SESC-SLIIT events, registeri
 
 ## Run locally
 
+This project runs on Next.js.
+
 ### Admin Routes
 
 - `/admin/events` event list
