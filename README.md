@@ -29,6 +29,8 @@ The SESC Events Portal is a web app for discovering SESC-SLIIT events, registeri
 - A Resend API key if registration emails should be sent.
 
 ## Run locally
+npm install 
+npm run dev
 
 ### Admin Routes
 
