@@ -49,7 +49,6 @@ export function SiteFooter() {
 
       <div className="relative mt-6 border-t pt-4 text-center text-xs text-muted-foreground md:text-left">
         <p>© {currentYear} SESC-SLIIT. All rights reserved.</p>
-        <>Developed by SESC Dev Team</>
       </div>
     </footer>
   );
